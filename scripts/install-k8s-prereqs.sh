@@ -93,6 +93,22 @@ else
     log_success "Docker is installed"
 fi
 
+# Detect architecture
+ARCH=$(uname -m)
+case $ARCH in
+    x86_64)
+        ARCH_SUFFIX="amd64"
+        ;;
+    aarch64|arm64)
+        ARCH_SUFFIX="arm64"
+        ;;
+    *)
+        log_error "Unsupported architecture: $ARCH (supported: x86_64, aarch64/arm64)"
+        exit 1
+        ;;
+esac
+log_info "Detected architecture: $ARCH ($ARCH_SUFFIX)"
+
 # Install kubectl
 log_info "Checking kubectl..."
 if command -v kubectl &> /dev/null; then
@@ -103,10 +119,10 @@ else
     
     # Download kubectl
     KUBECTL_STABLE=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-    curl -LO "https://dl.k8s.io/release/${KUBECTL_STABLE}/bin/linux/amd64/kubectl"
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_STABLE}/bin/linux/${ARCH_SUFFIX}/kubectl"
     
     # Verify checksum
-    curl -LO "https://dl.k8s.io/release/${KUBECTL_STABLE}/bin/linux/amd64/kubectl.sha256"
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_STABLE}/bin/linux/${ARCH_SUFFIX}/kubectl.sha256"
     if echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check --status 2>/dev/null; then
         log_success "kubectl checksum verified"
     else
@@ -129,11 +145,21 @@ else
     log_info "Installing minikube..."
     
     # Download minikube
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    MINIKUBE_BINARY="minikube-linux-${ARCH_SUFFIX}"
+    curl -LO "https://storage.googleapis.com/minikube/releases/latest/${MINIKUBE_BINARY}"
+    
+    # Verify checksum
+    curl -LO "https://storage.googleapis.com/minikube/releases/latest/${MINIKUBE_BINARY}.sha256"
+    if echo "$(cat ${MINIKUBE_BINARY}.sha256)  ${MINIKUBE_BINARY}" | sha256sum --check --status 2>/dev/null; then
+        log_success "minikube checksum verified"
+    else
+        log_warning "minikube checksum verification skipped"
+    fi
+    rm -f "${MINIKUBE_BINARY}.sha256"
     
     # Install
-    chmod +x minikube-linux-amd64
-    sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+    chmod +x "${MINIKUBE_BINARY}"
+    sudo mv "${MINIKUBE_BINARY}" /usr/local/bin/minikube
     log_success "minikube installed"
 fi
 

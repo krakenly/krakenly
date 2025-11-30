@@ -82,23 +82,6 @@ echo ""
 log_info "Start time: $START_TIME_STR"
 
 # Function to install kubectl
-install_kubectl() {
-    log_info "Installing kubectl..."
-    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    chmod +x kubectl
-    sudo mv kubectl /usr/local/bin/
-    log_success "kubectl installed"
-}
-
-# Function to install minikube
-install_minikube() {
-    log_info "Installing minikube..."
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-    chmod +x minikube-linux-amd64
-    sudo mv minikube-linux-amd64 /usr/local/bin/minikube
-    log_success "minikube installed"
-}
-
 # Check and install Docker (via existing prereq script)
 log_info "Checking Docker..."
 if ! command -v docker &> /dev/null; then
@@ -112,18 +95,19 @@ if ! docker info &> /dev/null; then
 fi
 log_success "Docker is ready"
 
-# Check and install kubectl
+# Check and install kubectl and minikube (via existing prereq script)
 log_info "Checking kubectl..."
 if ! command -v kubectl &> /dev/null; then
-    install_kubectl
+    log_info "kubectl not found. Installing k8s prerequisites..."
+    "$(dirname "$0")/install-k8s-prereqs.sh"
 else
     log_success "kubectl is installed"
 fi
 
-# Check and install minikube
 log_info "Checking minikube..."
 if ! command -v minikube &> /dev/null; then
-    install_minikube
+    log_info "minikube not found. Installing k8s prerequisites..."
+    "$(dirname "$0")/install-k8s-prereqs.sh"
 else
     log_success "minikube is installed"
 fi

@@ -131,15 +131,15 @@ kubectl delete deployment -n krakenly --all 2>/dev/null || true
 kubectl delete service -n krakenly --all 2>/dev/null || true
 kubectl delete ingress -n krakenly --all 2>/dev/null || true
 
-# Delete PVCs if requested
+# Delete PVCs and namespace if requested (namespace deletion also removes PVCs)
 if [ "$DELETE_DATA" = true ]; then
     log_warning "Deleting persistent volume claims..."
     kubectl delete pvc -n krakenly --all 2>/dev/null || true
+    log_info "Removing krakenly namespace..."
+    kubectl delete namespace krakenly 2>/dev/null || true
+else
+    log_info "Preserving namespace and PVCs (use --data to delete)"
 fi
-
-# Delete namespace
-log_info "Removing krakenly namespace..."
-kubectl delete namespace krakenly 2>/dev/null || true
 
 log_success "Krakenly removed from Kubernetes"
 
