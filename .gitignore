@@ -30,3 +30,4 @@ chroma/
 
 # Kubernetes
 secrets.yaml
+benchmark_results.json
