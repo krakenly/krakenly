@@ -25,7 +25,7 @@ cd "$(dirname "$0")/.."
 echo "========================================="
 echo "  Krakenly - Docker Compose Cleanup"
 echo "  https://github.com/krakenly/krakenly"
-echo "=========================================
+echo "========================================="
 echo ""
 
 # Parse arguments

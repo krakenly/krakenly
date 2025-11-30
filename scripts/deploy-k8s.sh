@@ -20,6 +20,28 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Deploy Krakenly to a Kubernetes cluster using official DockerHub images."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help message"
+    echo ""
+    echo "Prerequisites:"
+    echo "  - kubectl configured with cluster access"
+    echo "  - Kubernetes cluster running"
+    echo ""
+    echo "This script will:"
+    echo "  1. Deploy all Krakenly components to the 'krakenly' namespace"
+    echo "  2. Wait for pods to be ready"
+    echo "  3. Offer to start port-forward for local access"
+    echo ""
+    echo "For local development with minikube, use: ./scripts/deploy-k8s-local.sh"
+    exit 0
+fi
+
 echo "========================================="
 echo "  Krakenly - Kubernetes Deployment"
 echo "  (Using Official Images)"

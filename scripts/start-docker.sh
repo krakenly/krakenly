@@ -20,6 +20,26 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Start Krakenly using Docker Compose with official DockerHub images."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help message"
+    echo ""
+    echo "This script will:"
+    echo "  1. Install Docker and Docker Compose if not present"
+    echo "  2. Pull official images from DockerHub"
+    echo "  3. Start all services (Ollama, ChromaDB, Krakenly)"
+    echo "  4. Wait for health checks to pass"
+    echo "  5. Run end-to-end tests"
+    echo ""
+    echo "After startup, access the Web UI at: http://localhost:8080"
+    exit 0
+fi
+
 # Record start time
 START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')

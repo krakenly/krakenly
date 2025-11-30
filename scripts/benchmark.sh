@@ -18,6 +18,29 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Run performance benchmarks against the Krakenly API."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help         Show this help message"
+    echo "  --api-url URL      API endpoint (default: http://localhost:5000)"
+    echo "  --sample-file PATH Sample data file (default: tests/sample_data.md)"
+    echo "  --output FILE      Output JSON file (default: benchmark_results.json)"
+    echo "  --skip-upload      Skip uploading sample file"
+    echo ""
+    echo "This script will:"
+    echo "  1. Install Python 'requests' library if needed"
+    echo "  2. Upload sample data for benchmarking"
+    echo "  3. Run queries of varying complexity"
+    echo "  4. Generate performance report"
+    echo ""
+    echo "Prerequisites: Krakenly must be running (Docker or Kubernetes)"
+    exit 0
+fi
+
 cd "$(dirname "$0")"/..
 
 echo "========================================="

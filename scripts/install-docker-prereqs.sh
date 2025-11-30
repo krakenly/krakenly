@@ -6,6 +6,27 @@
 #
 set -e
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Install Docker and Docker Compose prerequisites for Krakenly."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --verbose  Enable verbose output"
+    echo ""
+    echo "This script will:"
+    echo "  1. Check system requirements (RAM, CPU, disk space)"
+    echo "  2. Install Docker if not present"
+    echo "  3. Install Docker Compose if not present"
+    echo "  4. Add current user to docker group"
+    echo ""
+    echo "Note: You may need to log out and back in after installation"
+    echo "for docker group permissions to take effect."
+    exit 0
+fi
+
 # Enable verbose mode if -v or --verbose flag is passed
 VERBOSE=false
 if [[ "$1" == "-v" ]] || [[ "$1" == "--verbose" ]]; then

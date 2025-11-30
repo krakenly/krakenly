@@ -18,6 +18,24 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Install Kubernetes prerequisites for local Krakenly development."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help message"
+    echo ""
+    echo "This script will install:"
+    echo "  - Docker (via install-docker-prereqs.sh)"
+    echo "  - kubectl (Kubernetes CLI)"
+    echo "  - minikube (local Kubernetes cluster)"
+    echo ""
+    echo "After installation, run: ./scripts/deploy-k8s-local.sh"
+    exit 0
+fi
+
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then 
     log_error "Please do not run this script as root/sudo. It will prompt for sudo when needed."

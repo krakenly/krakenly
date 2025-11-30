@@ -20,6 +20,26 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Build Krakenly from source and deploy to local Minikube cluster."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help message"
+    echo ""
+    echo "This script will:"
+    echo "  1. Install Docker, kubectl, and minikube if not present"
+    echo "  2. Start minikube cluster if not running"
+    echo "  3. Build Krakenly image from local source"
+    echo "  4. Deploy all components to minikube"
+    echo "  5. Offer to start port-forward and run tests"
+    echo ""
+    echo "For production deployment, use: ./scripts/deploy-k8s.sh"
+    exit 0
+fi
+
 echo "========================================="
 echo "  Krakenly - K8s Local Deployment"
 echo "  (Build from Source + Minikube)"
