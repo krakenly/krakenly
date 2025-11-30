@@ -6,6 +6,9 @@
 [![CI](https://github.com/krakenly/krakenly/actions/workflows/ci.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/ci.yml)
 [![Integration Tests](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/krakenly/krakenly/pulls)
+[![Last Commit](https://img.shields.io/github/last-commit/krakenly/krakenly)](https://github.com/krakenly/krakenly/commits)
 
 **Your data. Your AI. Your machine.**
 
