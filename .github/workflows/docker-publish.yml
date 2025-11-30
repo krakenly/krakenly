@@ -10,11 +10,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Optional tag for the image (e.g., beta, test)'
-        required: false
-        default: ''
 
 env:
   REGISTRY: docker.io
@@ -50,12 +45,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=test,enable=${{ github.ref != 'refs/heads/main' && github.event_name != 'pull_request' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
