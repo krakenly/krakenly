@@ -28,11 +28,11 @@ kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/part-of=
 ### Option 1: Port Forward (Development)
 
 ```bash
-# Web UI
-kubectl -n krakenly port-forward svc/krakenly 8080:80
+# Web UI and API (combined)
+kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &
 
-# API
-kubectl -n krakenly port-forward svc/krakenly 5000:5000
+# Run tests
+./scripts/test.sh
 ```
 
 Open http://localhost:8080 in your browser.

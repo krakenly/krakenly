@@ -186,13 +186,30 @@ echo "  - Pod status:    kubectl -n krakenly get pods"
 echo "  - Delete:        kubectl delete -k k8s/"
 echo ""
 
-# Offer to start port-forward
-read -p "Start port-forward now? (y/n) " -n 1 -r
+# Offer to start port-forward and run tests
+read -p "Start port-forward and run tests? (y/n) " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    log_info "Starting port-forward... (Ctrl+C to stop)"
+    log_info "Starting port-forward in background..."
+    kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &
+    PORT_FORWARD_PID=$!
+    
+    # Wait for port-forward to be ready
+    sleep 3
+    
+    # Pull the model if needed
+    log_info "Ensuring LLM model is available..."
+    OLLAMA_POD=$(kubectl -n krakenly get pod -l app.kubernetes.io/name=ollama -o jsonpath='{.items[0].metadata.name}')
+    kubectl -n krakenly exec "$OLLAMA_POD" -- ollama pull qwen2.5:3b 2>/dev/null || true
+    
+    echo ""
+    log_info "Running tests..."
+    echo ""
+    "$(dirname "$0")/test.sh"
+    
     echo ""
     echo -e "${GREEN}Open the Web UI: http://localhost:8080${NC}"
     echo ""
-    kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000
+    log_info "Port-forward running in background (PID: $PORT_FORWARD_PID)"
+    log_info "To stop: kill $PORT_FORWARD_PID"
 fi
