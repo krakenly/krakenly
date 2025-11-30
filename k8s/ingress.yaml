@@ -22,13 +22,7 @@ spec:
     - host: krakenly.local  # Change to your domain
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: krakenly
-                port:
-                  number: 80
+          # API endpoints (more specific paths first)
           - path: /health
             pathType: Prefix
             backend:
@@ -64,3 +58,11 @@ spec:
                 name: krakenly
                 port:
                   number: 5000
+          # Web UI (catch-all, must be last)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 80

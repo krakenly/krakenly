@@ -23,6 +23,7 @@ spec:
       containers:
         - name: krakenly
           image: krakenly/krakenly:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
               name: web

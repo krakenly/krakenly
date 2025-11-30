@@ -124,7 +124,7 @@ start_minikube() {
 # Check minikube status - handle stale/broken state
 if minikube status &> /dev/null; then
     # Verify the docker daemon is actually accessible
-    if ! eval $(minikube docker-env) 2>/dev/null || ! docker info &> /dev/null; then
+    if ! eval "$(minikube docker-env)" 2>/dev/null || ! docker info &> /dev/null; then
         log_warning "Minikube state is stale. Restarting..."
         minikube delete --purge 2>/dev/null || true
         start_minikube
@@ -142,7 +142,7 @@ minikube addons enable storage-provisioner 2>/dev/null || true
 
 # Point docker to minikube's docker daemon
 log_info "Configuring Docker to use Minikube's daemon..."
-eval $(minikube docker-env)
+eval "$(minikube docker-env)"
 
 # Build the Krakenly image locally
 log_info "Building Krakenly image from source..."

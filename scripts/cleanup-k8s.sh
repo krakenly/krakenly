@@ -125,20 +125,23 @@ fi
 
 echo ""
 
-# Delete deployments and services (but keep PVCs by default)
-log_info "Removing Krakenly deployments..."
-kubectl delete deployment -n krakenly --all 2>/dev/null || true
-kubectl delete service -n krakenly --all 2>/dev/null || true
-kubectl delete ingress -n krakenly --all 2>/dev/null || true
-
-# Delete PVCs and namespace if requested (namespace deletion also removes PVCs)
+# Delete PVCs and namespace if requested (full cleanup)
 if [ "$DELETE_DATA" = true ]; then
+    log_info "Removing all Krakenly resources..."
+    kubectl delete deployment -n krakenly --all 2>/dev/null || true
+    kubectl delete service -n krakenly --all 2>/dev/null || true
+    kubectl delete ingress -n krakenly --all 2>/dev/null || true
     log_warning "Deleting persistent volume claims..."
     kubectl delete pvc -n krakenly --all 2>/dev/null || true
     log_info "Removing krakenly namespace..."
     kubectl delete namespace krakenly 2>/dev/null || true
 else
-    log_info "Preserving namespace and PVCs (use --data to delete)"
+    # Just delete deployments/services but keep namespace and PVCs
+    log_info "Removing Krakenly deployments (preserving data)..."
+    kubectl delete deployment -n krakenly --all 2>/dev/null || true
+    kubectl delete service -n krakenly --all 2>/dev/null || true
+    kubectl delete ingress -n krakenly --all 2>/dev/null || true
+    log_info "Namespace and PVCs preserved (use --data to delete)"
 fi
 
 log_success "Krakenly removed from Kubernetes"
