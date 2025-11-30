@@ -45,20 +45,20 @@ docker info | grep Memory
 
 ## Search Returns No Results
 
-**Check if documents are indexed:**
+**Check if data is indexed:**
 
 ```bash
 curl http://localhost:5000/stats
 ```
 
-If `total_documents` is 0, you need to index documents first.
+If `total_documents` is 0, you need to index data first.
 
-**Index a test document:**
+**Index test data:**
 
 ```bash
 curl -X POST http://localhost:5000/index \
   -H "Content-Type: application/json" \
-  -d '{"text": "Test document content", "metadata": {"source": "test.txt"}}'
+  -d '{"text": "Test content", "metadata": {"source": "test.txt"}}'
 ```
 
 ## Container Keeps Restarting

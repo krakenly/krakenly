@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Krakenly Example: Index sample documents and perform searches
+Krakenly Example: Index sample data and perform searches
 """
 import requests
 import json
@@ -29,8 +29,8 @@ def wait_for_services():
     return False
 
 def index_documents():
-    """Index sample documents"""
-    print("\n📚 Indexing sample documents...")
+    """Index sample data"""
+    print("\n📚 Indexing sample data...")
     
     documents = [
         {
@@ -78,7 +78,7 @@ def index_documents():
         else:
             print(f"✗ Error indexing {doc['metadata']['source']}: {response.text}")
     
-    print(f"✓ Indexed {indexed} documents")
+    print(f"✓ Indexed sample data")
 
 def search_example():
     """Perform a simple search"""
@@ -160,6 +160,6 @@ if __name__ == "__main__":
     
     print("\n✅ Example completed!")
     print("\nNext steps:")
-    print("  - Index your own documents")
+    print("  - Index your own data")
     print("  - Try different search queries")
     print("  - Experiment with RAG parameters")

@@ -3,7 +3,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Your documents. Your AI. Your machine.**
+**Your data. Your AI. Your machine.**
 
 A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
 
@@ -23,17 +23,17 @@ A fully local, privacy-focused AI assistant that runs entirely on your machine u
 
 ## What is this?
 
-Krakenly is a **Retrieval-Augmented Generation (RAG)** system that lets you chat with your own documents. Upload any text, markdown, or JSON files, and the AI will answer questions based specifically on your content rather than generic knowledge. Think of it as having a personal research assistant that has read and understood all your documents.
+Krakenly is a **Retrieval-Augmented Generation (RAG)** system that lets you chat with your own data. Upload any text, markdown, or JSON files, and the AI will answer questions based specifically on your content rather than generic knowledge. Think of it as having a personal research assistant that has read and understood all your data.
 
 ### How it works
 
-1. **Index your documents** - Upload files through the web interface or API
-2. **Ask questions** - The system searches your documents for relevant context
+1. **Index your data** - Upload files through the web interface or API
+2. **Ask questions** - The system searches your data for relevant context
 3. **Get grounded answers** - The AI generates responses based on your data, citing sources
 
 ### Key difference from cloud-based AI
 
-Cloud AI services answer from their training data. Krakenly answers from **your documents**. If the information isn't in your indexed files, it will tell you rather than making something up. Plus, your data never leaves your machine.
+Cloud AI services answer from their training data. Krakenly answers from **your data**. If the information isn't in your indexed files, it will tell you rather than making something up. Plus, your data never leaves your machine.
 
 ## Components
 
@@ -42,19 +42,19 @@ This system uses **official images** for maximum reliability and minimal footpri
 - **Ollama**: Official `ollama/ollama` image for LLM inference (`qwen2.5:3b`)
 - **ChromaDB**: Official `chromadb/chroma` image for vector storage
 - **API Service**: Modular REST API with Fastembed embeddings (`bge-small-en-v1.5`)
-- **Web Manager**: Browser-based UI for document management and AI chat
+- **Web Manager**: Browser-based UI for data management and AI chat
 
 ## Features
 
 - 🔒 **100% Local**: All services run on your machine - no data leaves your system
 - ⚡ **Optimized**: Official images, ONNX embeddings, efficient LLM inference
 - 🤖 **Local LLM**: Uses Ollama with quantized models (`qwen2.5:3b` by default)
-- 🔍 **Semantic Search**: Find relevant documents using vector similarity
-- 📚 **RAG Support**: Context-aware AI responses using your indexed documents
-- 🧠 **Smart Preprocessing**: Enhanced document chunking with entity extraction, relationships, and Q&A formatting
+- 🔍 **Semantic Search**: Find relevant data using vector similarity
+- 📚 **RAG Support**: Context-aware AI responses using your indexed data
+- 🧠 **Smart Preprocessing**: Enhanced data chunking with entity extraction, relationships, and Q&A formatting
 - 🌐 **Web Interface**: Browser-based UI for file uploads, search, and AI chat
 - 🐳 **Containerized**: All services run as Docker containers (~4.9GB total)
-- 💾 **Persistent Storage**: Your indexed documents and models persist across restarts
+- 💾 **Persistent Storage**: Your indexed data and models persist across restarts
 
 ## Architecture
 
@@ -140,7 +140,7 @@ curl http://localhost:5000/health
 ```
 
 This runs an end-to-end test that:
-- Indexes a sample document
+- Indexes sample data
 - Performs semantic search
 - Tests RAG query
 - Verifies AI generation
@@ -151,20 +151,20 @@ This runs an end-to-end test that:
 
 Open **http://localhost:8080** in your browser to:
 
-- **Upload documents** - Drag & drop files to index them
-- **Manage sources** - View and delete indexed documents
-- **Search** - Semantic search across your documents
+- **Upload data** - Drag & drop files to index them
+- **Manage sources** - View and delete indexed data
+- **Search** - Semantic search across your data
 - **Chat** - Ask questions and get AI responses grounded in your data
 
 ### API Examples
 
 ```bash
-# Index a document
+# Index your data
 curl -X POST http://localhost:5000/index \
   -H "Content-Type: application/json" \
-  -d '{"text": "Your document content...", "metadata": {"source": "doc.txt"}}'
+  -d '{"text": "Your data content...", "metadata": {"source": "doc.txt"}}'
 
-# Search documents
+# Search data
 curl -X POST http://localhost:5000/search \
   -H "Content-Type: application/json" \
   -d '{"query": "What is...?", "top_k": 5}'
@@ -175,7 +175,7 @@ curl -X POST http://localhost:5000/search/rag \
   -d '{"query": "Explain this to me", "max_tokens": 256}'
 ```
 
-> **Note:** All chat interactions use RAG to ground responses in your indexed documents.
+> **Note:** All chat interactions use RAG to ground responses in your indexed data.
 
 ## Documentation
 
@@ -183,7 +183,7 @@ curl -X POST http://localhost:5000/search/rag \
 |----------|-------------|
 | [API Reference](docs/API.md) | Complete REST API documentation |
 | [Configuration](docs/CONFIGURATION.md) | Environment variables and model options |
-| [Document Preprocessing](docs/PREPROCESSING.md) | How documents are chunked for search |
+| [Data Preprocessing](docs/PREPROCESSING.md) | How data is chunked for search |
 | [Performance Benchmarks](docs/BENCHMARKS.md) | Response times and throughput metrics |
 | [Troubleshooting](docs/TROUBLESHOOTING.md) | Common issues and solutions |
 

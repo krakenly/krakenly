@@ -2,7 +2,7 @@
 
 ## Overview
 
-Krakenly is a fully local, privacy-focused personal AI assistant that runs entirely on your machine using Docker. It is designed to answer questions grounded in your own data rather than relying on generic LLM knowledge. All responses are generated using Retrieval-Augmented Generation (RAG), which means the system first searches your indexed documents before generating a response.
+Krakenly is a fully local, privacy-focused personal AI assistant that runs entirely on your machine using Docker. It is designed to answer questions grounded in your own data rather than relying on generic LLM knowledge. All responses are generated using Retrieval-Augmented Generation (RAG), which means the system first searches your indexed data before generating a response.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ The system consists of four containerized services:
 
 ### 2. ChromaDB (Vector Database)
 - **Port**: 8000 (internal)
-- **Purpose**: Stores document embeddings for semantic search
+- **Purpose**: Stores data embeddings for semantic search
 - **Persistence**: Data stored in Docker volume `chroma_data`
 
 ### 3. API Service
@@ -28,12 +28,12 @@ The system consists of four containerized services:
 
 ### 4. Web Manager
 - **Port**: 8080 (external)
-- **Purpose**: Browser-based UI for document management and AI chat
+- **Purpose**: Browser-based UI for data management and AI chat
 - **Server**: Nginx
 
 ## Key Features
 
-### Document Indexing
+### Data Indexing
 - Upload files via drag-and-drop or API
 - Supports JSON, Markdown, and plain text
 - Enhanced preprocessing with entity extraction and Q&A generation
@@ -45,7 +45,7 @@ The system consists of four containerized services:
 - Adjustable top_k and max_tokens parameters
 
 ### RAG-Based Chat
-- All conversations are grounded in indexed documents
+- All conversations are grounded in indexed data
 - No standalone chat mode - ensures responses are based on your data
 - Sources cited in responses
 
@@ -54,7 +54,7 @@ The system consists of four containerized services:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check for all services |
-| `/index` | POST | Index a document with text and metadata |
+| `/index` | POST | Index data with text and metadata |
 | `/index/upload` | POST | Upload and index a file |
 | `/sources` | GET | List all indexed sources |
 | `/sources/<id>` | DELETE | Delete a source and its chunks |
@@ -122,11 +122,11 @@ docker-compose logs -f api
 
 ## Design Philosophy
 
-Krakenly is a **personal AI assistant** where all responses are grounded in your indexed documents. Unlike general-purpose chatbots, this system:
+Krakenly is a **personal AI assistant** where all responses are grounded in your indexed data. Unlike general-purpose chatbots, this system:
 
-1. Always searches your documents before responding
+1. Always searches your data before responding
 2. Cites sources in responses
 3. Admits when information is not found in the index
 4. Prioritizes accuracy over creativity
 
-The goal is to be a reliable knowledge base assistant for your private documents, not a general conversationalist.
+The goal is to be a reliable knowledge base assistant for your private data, not a general conversationalist.
