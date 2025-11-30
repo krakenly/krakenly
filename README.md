@@ -279,7 +279,7 @@ docker-compose logs -f
 ./scripts/test.sh
 
 # Run benchmark
-python scripts/benchmark.py
+./scripts/benchmark.sh
 ```
 
 ## Project Structure
