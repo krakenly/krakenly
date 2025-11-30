@@ -7,6 +7,12 @@
 
 A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Perfect for personal home servers, NAS devices, or any always-on machine. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
 
+### Why run AI locally?
+
+- 🔐 **Complete Privacy**: Your data never leaves your machine—no cloud uploads, no third-party access
+- 💰 **Zero Ongoing Costs**: No API fees, no subscriptions, no usage limits—run it as much as you want
+- 🎛️ **Full Control**: Choose your models, customize behavior, and own your entire AI stack
+
 ## Table of Contents
 
 - [What is this?](#what-is-this)
