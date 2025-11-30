@@ -4,7 +4,7 @@ services:
   # Ollama - Official image for LLM inference
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama
+    container_name: krakenly-ollama
     ports:
       - "11434:11434"
     volumes:
@@ -23,7 +23,7 @@ services:
   # ChromaDB - Official image for vector database
   chromadb:
     image: chromadb/chroma:latest
-    container_name: chromadb
+    container_name: krakenly-chromadb
     ports:
       - "8000:8000"
     volumes:
@@ -39,26 +39,24 @@ services:
       start_period: 30s
     restart: unless-stopped
 
-  # API Service - Unified REST API with embeddings
-  api:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
-    container_name: api
+  # Krakenly - API + Web UI (published image from DockerHub)
+  krakenly:
+    image: krakenly/krakenly:latest
+    container_name: krakenly
     ports:
-      - "5000:5000"
+      - "8080:80"    # Web UI
+      - "5000:5000"  # API
     volumes:
-      - api-data:/data
+      - krakenly-data:/data
     environment:
       - OLLAMA_HOST=http://ollama:11434
       - CHROMA_HOST=http://chromadb:8000
       - MODEL_NAME=qwen2.5:3b
       - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
       - INDEX_METADATA_FILE=/data/index_metadata.json
-      # Performance tuning (adjust based on your VM)
-      - API_WORKERS=2              # Number of worker processes (reduced to save memory)
-      - API_THREADS=2              # Threads per worker
-      - API_TIMEOUT=300            # Request timeout in seconds
+      - API_WORKERS=2
+      - API_THREADS=2
+      - API_TIMEOUT=300
     depends_on:
       - ollama
       - chromadb
@@ -67,23 +65,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    restart: unless-stopped
-
-  # Web Manager - Web UI for Krakenly
-  web-manager:
-    build:
-      context: ./services/web-manager
-      dockerfile: Dockerfile
-    container_name: web-manager
-    ports:
-      - "8080:80"
-    depends_on:
-      - api
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      start_period: 60s
     restart: unless-stopped
 
 volumes:
@@ -91,5 +73,5 @@ volumes:
     name: krakenly-ollama
   chroma-data:
     name: krakenly-chroma
-  api-data:
-    name: krakenly-api
+  krakenly-data:
+    name: krakenly-data

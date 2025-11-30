@@ -105,25 +105,44 @@ This script will:
 
 ## Quick Start
 
-### 1. Install Prerequisites
+There are two ways to run Krakenly:
+
+### Option 1: Using Pre-built Images (Recommended)
+
+The fastest way to get started. Downloads official images from DockerHub:
 
 ```bash
-./scripts/install-prerequisites.sh
+# Download the docker-compose file
+curl -O https://raw.githubusercontent.com/krakenly/krakenly/main/docker-compose.yml
+
+# Start all services
+docker-compose up -d
 ```
 
-### 2. Start Services
+That's it! Open http://localhost:8080 to access the Web UI.
+
+### Option 2: Build from Source (For Development)
+
+If you want to modify the code or contribute:
 
 ```bash
+# Clone the repository
+git clone https://github.com/krakenly/krakenly.git
+cd krakenly
+
+# Install prerequisites (Docker, Docker Compose)
+./scripts/install-prerequisites.sh
+
+# Build and start services
 ./scripts/start.sh
 ```
 
 This will:
-- Build all Docker images (first run takes 5-10 minutes)
-- Start all three services
+- Build Docker images locally from source
+- Start all services (Ollama, ChromaDB, Krakenly)
 - Wait for health checks to pass
 - Pull the `qwen2.5:3b` model if not present
 - Run end-to-end tests automatically
-- Display service endpoints
 
 **Note:** First startup downloads the `qwen2.5:3b` model (~1.9GB). Subsequent starts are instant.
 
