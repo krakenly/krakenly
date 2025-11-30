@@ -6,18 +6,17 @@ This document provides detailed documentation for all scripts in the `scripts/` 
 
 - [Overview](#overview)
 - [Common Options](#common-options)
-- [Startup Scripts](#startup-scripts)
+- [Docker Scripts](#docker-scripts)
   - [start-docker.sh](#start-dockersh)
   - [start-docker-dev.sh](#start-docker-devsh)
+  - [cleanup-docker.sh](#cleanup-dockersh)
+  - [install-docker-prereqs.sh](#install-docker-prereqssh)
+- [Kubernetes Scripts](#kubernetes-scripts)
   - [deploy-k8s.sh](#deploy-k8ssh)
   - [deploy-k8s-local.sh](#deploy-k8s-localsh)
-- [Cleanup Scripts](#cleanup-scripts)
-  - [cleanup-docker.sh](#cleanup-dockersh)
   - [cleanup-k8s.sh](#cleanup-k8ssh)
-- [Prerequisites Scripts](#prerequisites-scripts)
-  - [install-docker-prereqs.sh](#install-docker-prereqssh)
   - [install-k8s-prereqs.sh](#install-k8s-prereqssh)
-- [Testing & Benchmarking](#testing--benchmarking)
+- [Utility Scripts](#utility-scripts)
   - [test.sh](#testsh)
   - [benchmark.sh](#benchmarksh)
 - [Common Workflows](#common-workflows)
@@ -26,17 +25,17 @@ This document provides detailed documentation for all scripts in the `scripts/` 
 
 ## Overview
 
-All scripts support common options for help, verbose output, and (where applicable) skipping confirmations. Scripts are organized by function:
+All scripts support common options for help, verbose output, and (where applicable) skipping confirmations. Scripts are organized by platform:
 
 | Script | Purpose | Platform |
 |--------|---------|----------|
 | `start-docker.sh` | Start production Docker Compose | Docker |
 | `start-docker-dev.sh` | Start development Docker Compose | Docker |
+| `cleanup-docker.sh` | Clean up Docker resources | Docker |
+| `install-docker-prereqs.sh` | Install Docker prerequisites | Docker |
 | `deploy-k8s.sh` | Deploy to Kubernetes cluster | Kubernetes |
 | `deploy-k8s-local.sh` | Deploy to local minikube | Kubernetes |
-| `cleanup-docker.sh` | Clean up Docker resources | Docker |
 | `cleanup-k8s.sh` | Clean up Kubernetes resources | Kubernetes |
-| `install-docker-prereqs.sh` | Install Docker prerequisites | Docker |
 | `install-k8s-prereqs.sh` | Install Kubernetes prerequisites | Kubernetes |
 | `test.sh` | Run API tests | Both |
 | `benchmark.sh` | Run performance benchmarks | Both |
@@ -60,7 +59,7 @@ Scripts with destructive operations also support:
 
 ---
 
-## Startup Scripts
+## Docker Scripts
 
 ### start-docker.sh
 
@@ -136,6 +135,112 @@ Start Krakenly using Docker Compose with locally built images for development.
 - Debugging issues
 
 ---
+
+### cleanup-docker.sh
+
+Clean up Docker Compose resources. **By default, preserves data volumes.**
+
+**Usage:**
+```bash
+./scripts/cleanup-docker.sh [OPTIONS]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--help`, `-h` | Show help message |
+| `--verbose`, `-v` | Enable verbose output |
+| `--yes`, `-y` | Skip confirmation prompts |
+| `--data`, `-d` | Also delete data volumes (ChromaDB, Ollama models) |
+| `--images`, `-i` | Also delete Docker images |
+| `--all`, `-a` | Full cleanup: containers, volumes, and images |
+
+**What it does (default):**
+1. Stops running containers
+2. Removes containers and networks
+3. Preserves data volumes
+
+**What it does (with options):**
+- `--data`: Also removes ChromaDB and Ollama data volumes
+- `--images`: Also removes Krakenly Docker images
+- `--all`: Removes everything (containers, volumes, images)
+
+**Examples:**
+```bash
+# Stop and remove containers (keep data)
+./scripts/cleanup-docker.sh
+
+# Remove everything including data
+./scripts/cleanup-docker.sh --all
+
+# Remove containers and images, keep data
+./scripts/cleanup-docker.sh --images
+
+# Remove containers and data, keep images
+./scripts/cleanup-docker.sh --data
+
+# Full cleanup without confirmation
+./scripts/cleanup-docker.sh --all --yes
+
+# Verbose cleanup for debugging
+./scripts/cleanup-docker.sh --verbose
+```
+
+**Data volumes preserved by default:**
+- ChromaDB vector database
+- Ollama downloaded models
+
+**When to use each option:**
+| Scenario | Command |
+|----------|---------|
+| Restart services | `./scripts/cleanup-docker.sh` |
+| Free disk space (keep data) | `./scripts/cleanup-docker.sh --images` |
+| Fresh start (lose data) | `./scripts/cleanup-docker.sh --all` |
+| CI/CD cleanup | `./scripts/cleanup-docker.sh --all --yes` |
+
+---
+
+### install-docker-prereqs.sh
+
+Install Docker and Docker Compose prerequisites.
+
+**Usage:**
+```bash
+./scripts/install-docker-prereqs.sh [OPTIONS]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--help`, `-h` | Show help message |
+| `--verbose`, `-v` | Enable verbose output |
+
+**What it installs:**
+- Docker Engine
+- Docker Compose plugin
+- Required system dependencies
+
+**Supported platforms:**
+- Ubuntu/Debian
+- macOS (via Homebrew)
+- Other Linux distributions (generic instructions)
+
+**Examples:**
+```bash
+# Install prerequisites
+./scripts/install-docker-prereqs.sh
+
+# Install with verbose output
+./scripts/install-docker-prereqs.sh --verbose
+```
+
+**Post-installation:**
+- Log out and back in for group changes to take effect
+- Verify with `docker --version` and `docker compose version`
+
+---
+
+## Kubernetes Scripts
 
 ### deploy-k8s.sh
 
@@ -227,72 +332,6 @@ Deploy Krakenly to a local minikube cluster for development and testing.
 
 ---
 
-## Cleanup Scripts
-
-### cleanup-docker.sh
-
-Clean up Docker Compose resources. **By default, preserves data volumes.**
-
-**Usage:**
-```bash
-./scripts/cleanup-docker.sh [OPTIONS]
-```
-
-**Options:**
-| Option | Description |
-|--------|-------------|
-| `--help`, `-h` | Show help message |
-| `--verbose`, `-v` | Enable verbose output |
-| `--yes`, `-y` | Skip confirmation prompts |
-| `--data`, `-d` | Also delete data volumes (ChromaDB, Ollama models) |
-| `--images`, `-i` | Also delete Docker images |
-| `--all`, `-a` | Full cleanup: containers, volumes, and images |
-
-**What it does (default):**
-1. Stops running containers
-2. Removes containers and networks
-3. Preserves data volumes
-
-**What it does (with options):**
-- `--data`: Also removes ChromaDB and Ollama data volumes
-- `--images`: Also removes Krakenly Docker images
-- `--all`: Removes everything (containers, volumes, images)
-
-**Examples:**
-```bash
-# Stop and remove containers (keep data)
-./scripts/cleanup-docker.sh
-
-# Remove everything including data
-./scripts/cleanup-docker.sh --all
-
-# Remove containers and images, keep data
-./scripts/cleanup-docker.sh --images
-
-# Remove containers and data, keep images
-./scripts/cleanup-docker.sh --data
-
-# Full cleanup without confirmation
-./scripts/cleanup-docker.sh --all --yes
-
-# Verbose cleanup for debugging
-./scripts/cleanup-docker.sh --verbose
-```
-
-**Data volumes preserved by default:**
-- ChromaDB vector database
-- Ollama downloaded models
-
-**When to use each option:**
-| Scenario | Command |
-|----------|---------|
-| Restart services | `./scripts/cleanup-docker.sh` |
-| Free disk space (keep data) | `./scripts/cleanup-docker.sh --images` |
-| Fresh start (lose data) | `./scripts/cleanup-docker.sh --all` |
-| CI/CD cleanup | `./scripts/cleanup-docker.sh --all --yes` |
-
----
-
 ### cleanup-k8s.sh
 
 Clean up Kubernetes resources. **By default, preserves persistent volume claims.**
@@ -349,48 +388,6 @@ Clean up Kubernetes resources. **By default, preserves persistent volume claims.
 
 ---
 
-## Prerequisites Scripts
-
-### install-docker-prereqs.sh
-
-Install Docker and Docker Compose prerequisites.
-
-**Usage:**
-```bash
-./scripts/install-docker-prereqs.sh [OPTIONS]
-```
-
-**Options:**
-| Option | Description |
-|--------|-------------|
-| `--help`, `-h` | Show help message |
-| `--verbose`, `-v` | Enable verbose output |
-
-**What it installs:**
-- Docker Engine
-- Docker Compose plugin
-- Required system dependencies
-
-**Supported platforms:**
-- Ubuntu/Debian
-- macOS (via Homebrew)
-- Other Linux distributions (generic instructions)
-
-**Examples:**
-```bash
-# Install prerequisites
-./scripts/install-docker-prereqs.sh
-
-# Install with verbose output
-./scripts/install-docker-prereqs.sh --verbose
-```
-
-**Post-installation:**
-- Log out and back in for group changes to take effect
-- Verify with `docker --version` and `docker compose version`
-
----
-
 ### install-k8s-prereqs.sh
 
 Install Kubernetes prerequisites including kubectl and minikube.
@@ -431,7 +428,7 @@ Install Kubernetes prerequisites including kubectl and minikube.
 
 ---
 
-## Testing & Benchmarking
+## Utility Scripts
 
 ### test.sh
 
