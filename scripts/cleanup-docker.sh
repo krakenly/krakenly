@@ -34,7 +34,7 @@ SKIP_CONFIRM=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --full|-f)
+        --all|-a)
             FULL_CLEANUP=true
             shift
             ;;
@@ -46,14 +46,14 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --full, -f    Full cleanup (remove all images, volumes, and cache)"
+            echo "  --all, -a     Full cleanup (remove all images, volumes, and cache)"
             echo "  --yes, -y     Skip confirmation prompt (for automation)"
             echo "  --help, -h    Show this help message"
             echo ""
             echo "Examples:"
             echo "  $0              # Basic cleanup (containers and project resources)"
-            echo "  $0 --full       # Full cleanup with confirmation prompt"
-            echo "  $0 --full --yes # Full cleanup without confirmation (for CI/CD)"
+            echo "  $0 --all        # Full cleanup with confirmation prompt"
+            echo "  $0 --all --yes  # Full cleanup without confirmation (for CI/CD)"
             exit 0
             ;;
         *)
