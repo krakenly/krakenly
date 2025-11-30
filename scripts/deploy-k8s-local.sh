@@ -69,7 +69,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Record start time (local timezone)
+# Record start time (uses TZ env var if set, otherwise system timezone)
 START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
@@ -261,11 +261,11 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     "$(dirname "$0")/test.sh"
     
     echo ""
+    echo -e "${GREEN}Open the Web UI:${NC}"
+    echo -e "  Local:  http://localhost:8080"
     if [[ "$PUBLIC_ACCESS" = true ]]; then
         PUBLIC_IP=$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
-        echo -e "${GREEN}Open the Web UI: http://${PUBLIC_IP}:8080${NC}"
-    else
-        echo -e "${GREEN}Open the Web UI: http://localhost:8080${NC}"
+        echo -e "  Public: http://${PUBLIC_IP}:8080"
     fi
     echo ""
     log_info "Port-forward running in background (PID: $PORT_FORWARD_PID)"

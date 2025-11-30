@@ -69,7 +69,7 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-# Record start time (local timezone)
+# Record start time (uses TZ env var if set, otherwise system timezone)
 START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
