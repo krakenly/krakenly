@@ -13,8 +13,11 @@ A fully local, privacy-focused AI assistant that runs entirely on your machine u
 - [Components](#components)
 - [Features](#features)
 - [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Deployment Options](#deployment-options)
+  - [Docker Compose](#docker-compose)
+  - [Kubernetes](#kubernetes)
+  - [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [Documentation](#documentation)
 - [Common Commands](#common-commands)
@@ -78,37 +81,11 @@ This system uses **official images** for maximum reliability and minimal footpri
 └────────────────────────────────────────────────────────────────┘
 ```
 
-## Prerequisites
-
-- **Docker**: Container runtime
-- **Docker Compose**: Container orchestration
-- **Hardware**: 
-  - Minimum: 8GB RAM, 2 CPU cores, 10GB disk space
-  - Recommended: 12GB+ RAM, 4+ CPU cores, 20GB disk space
-
-> **Note:** The `qwen2.5:3b` model requires ~4GB RAM during inference. Systems with less than 8GB RAM may experience slow performance or out-of-memory errors.
-
-### Automated Installation
-
-Run the prerequisites installer:
-
-```bash
-./scripts/install-docker-prereqs.sh
-```
-
-This script will:
-- ✅ Check system requirements (RAM, CPU, disk space)
-- ✅ Install Docker (if not present)
-- ✅ Install Docker Compose (if not present)
-- ✅ Configure Docker permissions
-
-**Note:** If Docker is newly installed, log out and back in for group permissions to take effect.
-
 ## Quick Start
 
 There are two ways to run Krakenly:
 
-### Option 1: Quick Start (Recommended)
+### Option 1: Docker Compose (Recommended)
 
 The fastest way to get started. Uses pre-built images from DockerHub:
 
@@ -121,75 +98,177 @@ cd krakenly
 ./scripts/start-docker.sh
 ```
 
+Open http://localhost:8080 to access the Web UI.
+
+### Option 2: Kubernetes
+
+Deploy to any Kubernetes cluster:
+
+```bash
+# Clone the repository
+git clone https://github.com/krakenly/krakenly.git
+cd krakenly
+
+# Deploy to your cluster
+./scripts/deploy-k8s.sh
+```
+
+See [Deployment Options](#deployment-options) for detailed instructions.
+
+---
+
+## Deployment Options
+
+### Docker Compose
+
+#### Production (DockerHub Images)
+
+```bash
+./scripts/start-docker.sh
+```
+
 This will:
 - Install Docker and Docker Compose (if needed)
 - Pull official images from DockerHub
-- Start all services
-- Run health checks and tests
+- Start all services (Ollama, ChromaDB, Krakenly)
+- Wait for health checks to pass
+- Run end-to-end tests
 
-Open http://localhost:8080 to access the Web UI.
+**Options:**
+```bash
+./scripts/start-docker.sh --help     # Show help
+./scripts/start-docker.sh --verbose  # Enable verbose output
+```
 
-### Option 2: Build from Source (For Development)
-
-If you want to modify the code or contribute:
+#### Development (Build from Source)
 
 ```bash
-# Clone the repository
-git clone https://github.com/krakenly/krakenly.git
-cd krakenly
-
-# Build from source and start
 ./scripts/start-docker-dev.sh
 ```
 
+Use this when you want to modify the code or contribute. Builds images locally from source.
+
+#### Stopping & Cleanup
+
+```bash
+# Stop services (preserves data)
+docker-compose down
+
+# Cleanup containers and images (preserves data)
+./scripts/cleanup-docker.sh
+
+# Cleanup including data volumes
+./scripts/cleanup-docker.sh --data
+
+# Full cleanup (data + base images)
+./scripts/cleanup-docker.sh --all
+```
+
+---
+
+### Kubernetes
+
+#### Production Cluster
+
+Deploy to any Kubernetes cluster (GKE, EKS, AKS, on-prem):
+
+```bash
+./scripts/deploy-k8s.sh
+```
+
 This will:
-- Install prerequisites (Docker, Docker Compose)
-- Build Docker images locally from source
-- Start all services (Ollama, ChromaDB, Krakenly)
-- Wait for health checks to pass
-- Pull the `qwen2.5:3b` model if not present
-- Run end-to-end tests automatically
+- Deploy all components to the `krakenly` namespace
+- Wait for pods to be ready
+- Offer to start port-forward for local access
 
-**Note:** First startup downloads the `qwen2.5:3b` model (~1.9GB). Subsequent starts are instant.
-
-### Option 3: Kubernetes Deployment
-
-Deploy to a Kubernetes cluster:
-
+**Options:**
 ```bash
-# Clone the repository
-git clone https://github.com/krakenly/krakenly.git
-cd krakenly
-
-# Deploy all components
-kubectl apply -k k8s/
-
-# Wait for pods to be ready
-kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/part-of=krakenly --timeout=300s
-
-# Port forward to access locally
-kubectl -n krakenly port-forward svc/krakenly 8080:80
+./scripts/deploy-k8s.sh --help     # Show help
+./scripts/deploy-k8s.sh --yes      # Skip confirmation prompts
+./scripts/deploy-k8s.sh --verbose  # Enable verbose output
 ```
 
-See [k8s/README.md](k8s/README.md) for detailed Kubernetes configuration options.
+**Access the services:**
+```bash
+# Port forward (development)
+kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000
 
-### 3. Verify Services
+# Or use LoadBalancer (cloud providers)
+kubectl -n krakenly patch svc krakenly -p '{"spec": {"type": "LoadBalancer"}}'
+```
+
+#### Local Development (Minikube)
+
+For local Kubernetes development with automatic minikube setup:
 
 ```bash
+./scripts/deploy-k8s-local.sh
+```
+
+This will:
+- Install Docker, kubectl, and minikube (if needed)
+- Start minikube cluster
+- Build Krakenly image from local source
+- Deploy to minikube
+- Run end-to-end tests
+
+#### Cleanup
+
+```bash
+# Remove deployments (preserves data)
+./scripts/cleanup-k8s.sh
+
+# Remove deployments and data
+./scripts/cleanup-k8s.sh --data
+
+# Remove everything including minikube
+./scripts/cleanup-k8s.sh --all
+```
+
+See [k8s/README.md](k8s/README.md) for advanced configuration (GPU support, ingress, storage).
+
+---
+
+### Prerequisites
+
+**Hardware Requirements:**
+- Minimum: 8GB RAM, 2 CPU cores, 10GB disk space
+- Recommended: 12GB+ RAM, 4+ CPU cores, 20GB disk space
+
+> **Note:** The `qwen2.5:3b` model requires ~4GB RAM during inference. First startup downloads the model (~1.9GB).
+
+#### For Docker Compose
+
+```bash
+./scripts/install-docker-prereqs.sh
+```
+
+Installs: Docker, Docker Compose
+
+#### For Kubernetes
+
+```bash
+./scripts/install-k8s-prereqs.sh
+```
+
+Installs: Docker, kubectl, minikube
+
+---
+
+### Verify Installation
+
+```bash
+# Check service health
 curl http://localhost:5000/health
-```
 
-### 4. Run Tests
-
-```bash
+# Run end-to-end tests
 ./scripts/test.sh
+
+# Run performance benchmark
+./scripts/benchmark.sh
 ```
 
-This runs an end-to-end test that:
-- Indexes sample data
-- Performs semantic search
-- Tests RAG query
-- Verifies AI generation
+---
 
 ## Usage
 
@@ -302,8 +381,9 @@ ai-assistant/
 │   ├── deploy-k8s-local.sh       # Kubernetes (build + minikube)
 │   ├── cleanup-docker.sh         # Cleanup Docker resources
 │   ├── cleanup-k8s.sh            # Cleanup Kubernetes resources
-│   ├── test.sh
-│   └── benchmark.py
+│   ├── test.sh                   # End-to-end tests
+│   ├── benchmark.sh              # Performance benchmarks
+│   └── benchmark.py              # Benchmark implementation
 ├── services/
 │   ├── api/                # REST API service
 │   └── web-manager/        # Browser UI
