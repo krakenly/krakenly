@@ -1,6 +1,7 @@
 # 🐙 Krakenly
 
 [![GitHub](https://img.shields.io/badge/GitHub-Krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Your data. Your AI. Your machine.**
