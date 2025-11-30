@@ -66,7 +66,8 @@ wait_for_health() {
 
 wait_for_health "ollama" "http://localhost:11434/api/tags" 30
 wait_for_health "chromadb" "http://localhost:8000/api/v2/heartbeat" 30
-wait_for_health "krakenly" "http://localhost:5000/health" 90
+wait_for_health "krakenly API" "http://localhost:5000/health" 90
+wait_for_health "krakenly Web UI" "http://localhost:8080/health" 90
 
 echo ""
 log_info "Container status:"

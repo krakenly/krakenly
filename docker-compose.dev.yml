@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Development configuration - builds from local source
 # Usage: docker-compose -f docker-compose.dev.yml up -d --build
 
