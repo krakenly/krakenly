@@ -247,10 +247,6 @@ ai-assistant/
     └── basic_usage.py
 ```
 
-## License
-
-See LICENSE file.
-
 ---
 
 **Acknowledgments:** [Ollama](https://ollama.ai/), [Fastembed](https://github.com/qdrant/fastembed), [ChromaDB](https://www.trychroma.com/)
