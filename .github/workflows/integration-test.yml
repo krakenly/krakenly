@@ -1,0 +1,148 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      test_docker:
+        description: 'Run Docker Compose tests'
+        required: false
+        default: true
+        type: boolean
+      test_k8s:
+        description: 'Run Kubernetes tests'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  docker-integration:
+    name: Docker Compose Integration
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' && inputs.test_docker ||
+      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t krakenly/krakenly:local .
+
+      - name: Start services with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml up -d
+          echo "Waiting for services to be ready..."
+          sleep 30
+
+      - name: Wait for API to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:5000/health | grep -q "healthy"; then
+              echo "API is healthy"
+              exit 0
+            fi
+            echo "Waiting for API... ($i/30)"
+            sleep 5
+          done
+          echo "API failed to become healthy"
+          docker compose logs
+          exit 1
+
+      - name: Pull LLM model
+        run: |
+          docker exec krakenly-ollama-1 ollama pull qwen2.5:3b
+
+      - name: Run integration tests
+        run: |
+          ./scripts/test.sh
+
+      - name: Collect logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
+
+  k8s-integration:
+    name: Kubernetes Integration
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' && inputs.test_k8s ||
+      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t krakenly/krakenly:local .
+
+      - name: Install minikube
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+      - name: Start minikube
+        run: |
+          minikube start --driver=docker
+          minikube addons enable storage-provisioner
+
+      - name: Load image into minikube
+        run: minikube image load krakenly/krakenly:local
+
+      - name: Deploy to Kubernetes
+        run: |
+          # Create namespace
+          kubectl create namespace krakenly
+          
+          # Apply base manifests
+          kubectl apply -f k8s/base/pvc.yaml -n krakenly
+          kubectl apply -f k8s/base/ollama.yaml -n krakenly
+          kubectl apply -f k8s/base/chromadb.yaml -n krakenly
+          
+          # Deploy krakenly with local image
+          sed 's|image: krakenly/krakenly:latest|image: krakenly/krakenly:local\n        imagePullPolicy: Never|' k8s/base/krakenly.yaml | kubectl apply -n krakenly -f -
+
+      - name: Wait for pods to be ready
+        run: |
+          kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/name=ollama --timeout=300s
+          kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/name=chromadb --timeout=300s
+          kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/name=krakenly --timeout=300s
+          kubectl -n krakenly get pods
+
+      - name: Start port-forward
+        run: |
+          kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &
+          sleep 5
+
+      - name: Pull LLM model
+        run: |
+          kubectl -n krakenly exec deploy/ollama -- ollama pull qwen2.5:3b
+
+      - name: Run integration tests
+        run: |
+          ./scripts/test.sh
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          kubectl -n krakenly logs -l app.kubernetes.io/name=krakenly --tail=100
+          kubectl -n krakenly logs -l app.kubernetes.io/name=ollama --tail=100
+          kubectl -n krakenly logs -l app.kubernetes.io/name=chromadb --tail=100
+
+      - name: Cleanup
+        if: always()
+        run: |
+          minikube delete
