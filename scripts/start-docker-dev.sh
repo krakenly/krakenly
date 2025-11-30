@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Krakenly - Quick Start Script
-# Installs prerequisites and deploys from official DockerHub images
+# Krakenly - Docker Compose Development Script
+# Installs prerequisites, builds from source, and starts all services
 # https://github.com/krakenly/krakenly
 #
 set -e
@@ -20,20 +20,59 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
-# Record start time
+# Parse arguments
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Start Krakenly using Docker Compose, building from local source code."
+            echo ""
+            echo "Options:"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "This script will:"
+            echo "  1. Install Docker and Docker Compose if not present"
+            echo "  2. Build Docker images from local source"
+            echo "  3. Start all services (Ollama, ChromaDB, Krakenly)"
+            echo "  4. Wait for health checks to pass"
+            echo "  5. Run end-to-end tests"
+            echo ""
+            echo "Use this script for development when you want to test local changes."
+            echo "For production, use: ./scripts/start-docker.sh"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
+
+# Record start time (uses TZ env var if set, otherwise system timezone)
 START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 echo "========================================="
-echo "  Krakenly - Quick Start"
-echo "  (Using Official Images)"
+echo "  Krakenly - Docker Compose Dev"
+echo "  (Build from Source)"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
 log_info "Start time: $START_TIME_STR"
 
 # Install prerequisites
 log_info "Checking prerequisites..."
-"$(dirname "$0")/install-prerequisites.sh"
+"$(dirname "$0")/install-docker-prereqs.sh"
 echo ""
 
 # Verify docker is accessible
@@ -42,9 +81,9 @@ if ! docker info &> /dev/null; then
     exit 1
 fi
 
-# Pull and start services
-log_info "Pulling and starting services from DockerHub..."
-docker-compose up -d
+# Build and start services
+log_info "Building and starting services from local source..."
+docker compose -f docker-compose.dev.yml up -d --build
 
 echo ""
 log_info "Waiting for services to become healthy..."
@@ -72,7 +111,7 @@ wait_for_health "krakenly Web UI" "http://localhost:8080/health" 90
 
 echo ""
 log_info "Container status:"
-docker-compose ps
+docker compose -f docker-compose.dev.yml ps
 
 echo ""
 log_success "All services are running!"
@@ -89,9 +128,9 @@ echo "    -H 'Content-Type: application/json' \\"
 echo "    -d '{\"prompt\": \"Hello!\"}'"
 echo ""
 log_info "Useful commands:"
-echo "  - View logs:     docker-compose logs -f"
-echo "  - Stop services: docker-compose down"
-echo "  - Restart:       docker-compose restart"
+echo "  - View logs:     docker compose -f docker-compose.dev.yml logs -f"
+echo "  - Stop services: docker compose -f docker-compose.dev.yml down"
+echo "  - Restart:       docker compose -f docker-compose.dev.yml restart"
 echo ""
 
 # Calculate and display duration
@@ -111,7 +150,7 @@ log_info "Running tests..."
 if "$(dirname "$0")/test.sh"; then
     echo ""
     echo "========================================="
-    echo -e "${GREEN}🦑 Congratulations! Krakenly is ready!${NC}"
+    echo -e "${GREEN}🐙 Congratulations! Krakenly is ready!${NC}"
     echo "========================================="
     echo ""
     echo "Krakenly is now running and fully tested."

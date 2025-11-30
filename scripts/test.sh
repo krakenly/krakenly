@@ -17,7 +17,51 @@ log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-API_URL="http://localhost:5000"
+# Parse arguments
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Run end-to-end tests against the Krakenly API."
+            echo ""
+            echo "Options:"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "Environment variables:"
+            echo "  API_URL       API endpoint (default: http://localhost:5000)"
+            echo ""
+            echo "Tests performed:"
+            echo "  1. Health check - Verify all services are running"
+            echo "  2. Indexing - Test data indexing"
+            echo "  3. Search - Test semantic search"
+            echo "  4. RAG Query - Test retrieval-augmented generation"
+            echo "  5. Generation - Test direct LLM generation"
+            echo ""
+            echo "Prerequisites: Krakenly must be running (Docker or Kubernetes)"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
+
+# Record start time (uses TZ env var if set, otherwise system timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
+API_URL="${API_URL:-http://localhost:5000}"
 TESTS_PASSED=true
 
 # Track individual test results
@@ -42,6 +86,7 @@ check_result() {
 
 echo "========================================="
 echo "  Krakenly - End-to-End Test"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
 
@@ -153,9 +198,25 @@ done
 
 TOTAL=${#TEST_ORDER[@]}
 echo ""
+
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
 if [ "$TESTS_PASSED" = true ]; then
     echo -e "${GREEN}Results: $PASSED/$TOTAL tests passed${NC}"
 else
     echo -e "${RED}Results: $PASSED/$TOTAL tests passed, $FAILED failed${NC}"
+fi
+
+echo ""
+log_info "Start time: $START_TIME_STR"
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"
+
+if [ "$TESTS_PASSED" != true ]; then
     exit 1
 fi

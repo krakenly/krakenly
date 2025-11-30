@@ -80,8 +80,8 @@ These models convert text to vectors for semantic search (set via `EMBEDDING_MOD
 
 2. Restart services:
    ```bash
-   docker-compose down
-   docker-compose up -d
+   docker compose down
+   docker compose up -d
    ```
 
 3. The new model will be downloaded automatically on first request.
@@ -99,7 +99,7 @@ curl -X POST http://localhost:5000/models/pull \
 Or via Ollama directly:
 
 ```bash
-docker-compose exec ollama ollama pull phi3:mini
+docker compose exec ollama ollama pull phi3:mini
 ```
 
 ### Change Embedding Model
@@ -112,8 +112,8 @@ docker-compose exec ollama ollama pull phi3:mini
 
 2. Rebuild the API service:
    ```bash
-   docker-compose down
-   docker-compose up -d --build api
+   docker compose down
+   docker compose up -d --build api
    ```
 
 > **Warning:** Changing the embedding model requires re-indexing all data, as vectors are not compatible between models.
@@ -232,11 +232,11 @@ services:
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f api
-docker-compose logs -f ollama
+docker compose logs -f api
+docker compose logs -f ollama
 ```
 
 ### Log Levels

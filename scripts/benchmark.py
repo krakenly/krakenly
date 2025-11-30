@@ -352,7 +352,7 @@ def print_system_info(system_info, docker_info):
     print(f"   Python: {system_info.get('python_version', 'Unknown')}")
     
     if docker_info:
-        print(f"\n🦑 Krakenly:")
+        print(f"\n🐙 Krakenly:")
         model = docker_info.get("model_details", {})
         print(f"   Model: {model.get('name', 'Unknown')}")
         print(f"   Parameters: {model.get('parameter_size', 'Unknown')}")

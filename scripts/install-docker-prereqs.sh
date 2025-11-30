@@ -1,10 +1,33 @@
 #!/bin/bash
 #
-# Krakenly - Prerequisites Installer
+# Krakenly - Docker Prerequisites Installer
 # Installs Docker and Docker Compose
 # https://github.com/krakenly/krakenly
 #
 set -e
+
+# Show help
+if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Install Docker and Docker Compose prerequisites for Krakenly."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --verbose  Enable verbose output"
+    echo ""
+    echo "This script will:"
+    echo "  1. Check system requirements (RAM, CPU, disk space)"
+    echo "  2. Install Docker if not present"
+    echo "  3. Install Docker Compose plugin if not present"
+    echo "  4. Add current user to docker group"
+    echo ""
+    echo "Supported platforms: Ubuntu/Debian (apt-based distributions)"
+    echo ""
+    echo "Note: You may need to log out and back in after installation"
+    echo "for docker group permissions to take effect."
+    exit 0
+fi
 
 # Enable verbose mode if -v or --verbose flag is passed
 VERBOSE=false
@@ -48,10 +71,16 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# Record start time (uses TZ env var if set, otherwise system timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
 echo "========================================="
-echo "  Krakenly Prerequisites Installer  "
+echo "  Krakenly - Docker Prereqs Installer"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
+log_info "Start time: $START_TIME_STR"
 
 # Check system
 log_info "Checking system requirements..."
@@ -109,8 +138,8 @@ fi
 
 # 2. Install Docker Compose
 log_info "Checking Docker Compose installation..."
-if command_exists docker-compose; then
-    COMPOSE_VERSION=$(docker-compose --version | awk '{print $4}' | sed 's/,//' 2>/dev/null || docker-compose version --short 2>/dev/null || echo "installed")
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_VERSION=$(docker compose version --short 2>/dev/null || echo "installed")
     log_success "Docker Compose $COMPOSE_VERSION is already installed"
 else
     log_info "Installing Docker Compose..."
@@ -151,7 +180,12 @@ check_and_report() {
 ALL_OK=true
 
 check_and_report docker "Docker" || ALL_OK=false
-check_and_report docker-compose "Docker Compose" || ALL_OK=false
+if docker compose version >/dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC} Docker Compose is installed"
+else
+    echo -e "${RED}✗${NC} Docker Compose is NOT installed"
+    ALL_OK=false
+fi
 
 echo ""
 if [ "$ALL_OK" = true ]; then
@@ -159,9 +193,9 @@ if [ "$ALL_OK" = true ]; then
     echo ""
     log_info "Next steps:"
     echo "  1. If this is your first Docker installation, log out and back in"
-    echo "  2. Run: docker-compose up -d"
-    echo "  3. Check status: docker-compose ps"
-    echo "  4. View logs: docker-compose logs -f"
+    echo "  2. Run: docker compose up -d"
+    echo "  3. Check status: docker compose ps"
+    echo "  4. View logs: docker compose logs -f"
     echo ""
     log_info "Service endpoint (after startup):"
     echo "  - API Service: http://localhost:5000"
@@ -171,4 +205,13 @@ else
     exit 1
 fi
 
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"
 echo "========================================="

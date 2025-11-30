@@ -1,11 +1,24 @@
-# 🦑 Krakenly
+# 🐙 Krakenly
 
-[![GitHub](https://img.shields.io/badge/GitHub-Krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
+[![GitHub](https://img.shields.io/badge/GitHub-krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
+[![Release](https://img.shields.io/github/v/release/krakenly/krakenly?logo=github)](https://github.com/krakenly/krakenly/releases)
+[![CI](https://github.com/krakenly/krakenly/actions/workflows/ci.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/ci.yml)
+[![Integration Tests](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/krakenly/krakenly/pulls)
+[![Last Commit](https://img.shields.io/github/last-commit/krakenly/krakenly)](https://github.com/krakenly/krakenly/commits)
 
 **Your data. Your AI. Your machine.**
 
-A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
+A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Perfect for personal home servers, NAS devices, or any always-on machine. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
+
+### Why run AI locally?
+
+- 🔐 **Complete Privacy**: Your data never leaves your machine—no cloud uploads, no third-party access
+- 💰 **Zero Ongoing Costs**: No API fees, no subscriptions, no usage limits—run it as much as you want
+- 🎛️ **Full Control**: Choose your models, customize behavior, and own your entire AI stack
 
 ## Table of Contents
 
@@ -13,8 +26,11 @@ A fully local, privacy-focused AI assistant that runs entirely on your machine u
 - [Components](#components)
 - [Features](#features)
 - [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Deployment Options](#deployment-options)
+  - [Docker Compose](#docker compose)
+  - [Kubernetes](#kubernetes)
+  - [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [Documentation](#documentation)
 - [Common Commands](#common-commands)
@@ -47,13 +63,14 @@ This system uses **official images** for maximum reliability and minimal footpri
 ## Features
 
 - 🔒 **100% Local**: All services run on your machine - no data leaves your system
+- 🏠 **Home Server Ready**: Perfect for NAS, Raspberry Pi, or any always-on machine
 - ⚡ **Optimized**: Official images, ONNX embeddings, efficient LLM inference
 - 🤖 **Local LLM**: Uses Ollama with quantized models (`qwen2.5:3b` by default)
 - 🔍 **Semantic Search**: Find relevant data using vector similarity
 - 📚 **RAG Support**: Context-aware AI responses using your indexed data
 - 🧠 **Smart Preprocessing**: Enhanced data chunking with entity extraction, relationships, and Q&A formatting
 - 🌐 **Web Interface**: Browser-based UI for file uploads, search, and AI chat
-- 🐳 **Containerized**: All services run as Docker containers (~4.9GB total)
+- 🐳 **Containerized**: All services run as Docker containers
 - 💾 **Persistent Storage**: Your indexed data and models persist across restarts
 
 ## Architecture
@@ -77,37 +94,11 @@ This system uses **official images** for maximum reliability and minimal footpri
 └────────────────────────────────────────────────────────────────┘
 ```
 
-## Prerequisites
-
-- **Docker**: Container runtime
-- **Docker Compose**: Container orchestration
-- **Hardware**: 
-  - Minimum: 8GB RAM, 2 CPU cores, 10GB disk space
-  - Recommended: 12GB+ RAM, 4+ CPU cores, 20GB disk space
-
-> **Note:** The `qwen2.5:3b` model requires ~4GB RAM during inference. Systems with less than 8GB RAM may experience slow performance or out-of-memory errors.
-
-### Automated Installation
-
-Run the prerequisites installer:
-
-```bash
-./scripts/install-prerequisites.sh
-```
-
-This script will:
-- ✅ Check system requirements (RAM, CPU, disk space)
-- ✅ Install Docker (if not present)
-- ✅ Install Docker Compose (if not present)
-- ✅ Configure Docker permissions
-
-**Note:** If Docker is newly installed, log out and back in for group permissions to take effect.
-
 ## Quick Start
 
 There are two ways to run Krakenly:
 
-### Option 1: Quick Start (Recommended)
+### Option 1: Docker Compose (Recommended)
 
 The fastest way to get started. Uses pre-built images from DockerHub:
 
@@ -117,57 +108,180 @@ git clone https://github.com/krakenly/krakenly.git
 cd krakenly
 
 # Install prerequisites and start (one command!)
-./scripts/start.sh
+./scripts/start-docker.sh
 ```
-
-This will:
-- Install Docker and Docker Compose (if needed)
-- Pull official images from DockerHub
-- Start all services
-- Run health checks and tests
 
 Open http://localhost:8080 to access the Web UI.
 
-### Option 2: Build from Source (For Development)
+### Option 2: Kubernetes
 
-If you want to modify the code or contribute:
+Deploy to any Kubernetes cluster:
 
 ```bash
 # Clone the repository
 git clone https://github.com/krakenly/krakenly.git
 cd krakenly
 
-# Build from source and start
-./scripts/start-dev.sh
+# Deploy to your cluster
+./scripts/deploy-k8s.sh
+```
+
+See [Deployment Options](#deployment-options) for detailed instructions.
+
+---
+
+## Deployment Options
+
+### Docker Compose
+
+#### Production (DockerHub Images)
+
+```bash
+./scripts/start-docker.sh
 ```
 
 This will:
-- Install prerequisites (Docker, Docker Compose)
-- Build Docker images locally from source
+- Install Docker and Docker Compose (if needed)
+- Pull official images from DockerHub
 - Start all services (Ollama, ChromaDB, Krakenly)
 - Wait for health checks to pass
-- Pull the `qwen2.5:3b` model if not present
-- Run end-to-end tests automatically
+- Run end-to-end tests
 
-**Note:** First startup downloads the `qwen2.5:3b` model (~1.9GB). Subsequent starts are instant.
+**Options:**
+```bash
+./scripts/start-docker.sh --help     # Show help
+./scripts/start-docker.sh --verbose  # Enable verbose output
+```
 
-### 3. Verify Services
+#### Development (Build from Source)
 
 ```bash
+./scripts/start-docker-dev.sh
+```
+
+Use this when you want to modify the code or contribute. Builds images locally from source.
+
+#### Stopping & Cleanup
+
+```bash
+# Stop services (preserves data)
+docker compose down
+
+# Cleanup containers and images (preserves data)
+./scripts/cleanup-docker.sh
+
+# Cleanup including data volumes
+./scripts/cleanup-docker.sh --data
+
+# Full cleanup (data + base images)
+./scripts/cleanup-docker.sh --all
+```
+
+---
+
+### Kubernetes
+
+#### Production Cluster
+
+Deploy to any Kubernetes cluster (GKE, EKS, AKS, on-prem):
+
+```bash
+./scripts/deploy-k8s.sh
+```
+
+This will:
+- Deploy all components to the `krakenly` namespace
+- Wait for pods to be ready
+- Offer to start port-forward for local access
+
+**Options:**
+```bash
+./scripts/deploy-k8s.sh --help     # Show help
+./scripts/deploy-k8s.sh --yes      # Skip confirmation prompts
+./scripts/deploy-k8s.sh --verbose  # Enable verbose output
+```
+
+**Access the services:**
+```bash
+# Port forward (development)
+kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000
+
+# Or use LoadBalancer (cloud providers)
+kubectl -n krakenly patch svc krakenly -p '{"spec": {"type": "LoadBalancer"}}'
+```
+
+#### Local Development (Minikube)
+
+For local Kubernetes development with automatic minikube setup:
+
+```bash
+./scripts/deploy-k8s-local.sh
+```
+
+This will:
+- Install Docker, kubectl, and minikube (if needed)
+- Start minikube cluster
+- Build Krakenly image from local source
+- Deploy to minikube
+- Run end-to-end tests
+
+#### Cleanup
+
+```bash
+# Remove deployments (preserves data)
+./scripts/cleanup-k8s.sh
+
+# Remove deployments and data
+./scripts/cleanup-k8s.sh --data
+
+# Remove everything including minikube
+./scripts/cleanup-k8s.sh --all
+```
+
+See [k8s/README.md](k8s/README.md) for advanced configuration (GPU support, ingress, storage).
+
+---
+
+### Prerequisites
+
+**Hardware Requirements:**
+- Minimum: 8GB RAM, 2 CPU cores, 10GB disk space
+- Recommended: 12GB+ RAM, 4+ CPU cores, 20GB disk space
+
+> **Note:** The `qwen2.5:3b` model requires ~4GB RAM during inference. First startup downloads the model (~1.9GB).
+
+#### For Docker Compose
+
+```bash
+./scripts/install-docker-prereqs.sh
+```
+
+Installs: Docker, Docker Compose
+
+#### For Kubernetes
+
+```bash
+./scripts/install-k8s-prereqs.sh
+```
+
+Installs: Docker, kubectl, minikube
+
+---
+
+### Verify Installation
+
+```bash
+# Check service health
 curl http://localhost:5000/health
-```
 
-### 4. Run Tests
-
-```bash
+# Run end-to-end tests
 ./scripts/test.sh
+
+# Run performance benchmark
+./scripts/benchmark.sh
 ```
 
-This runs an end-to-end test that:
-- Indexes sample data
-- Performs semantic search
-- Tests RAG query
-- Verifies AI generation
+---
 
 ## Usage
 
@@ -205,6 +319,7 @@ curl -X POST http://localhost:5000/search/rag \
 
 | Document | Description |
 |----------|-------------|
+| [Scripts Reference](docs/SCRIPTS.md) | All scripts with options and examples |
 | [API Reference](docs/API.md) | Complete REST API documentation |
 | [Configuration](docs/CONFIGURATION.md) | Environment variables and model options |
 | [Data Preprocessing](docs/PREPROCESSING.md) | How data is chunked for search |
@@ -223,49 +338,67 @@ curl -X POST http://localhost:5000/search/rag \
 ## Common Commands
 
 ```bash
-# Quick start (uses DockerHub images)
-./scripts/start.sh
+# Docker Compose - Quick start (uses DockerHub images)
+./scripts/start-docker.sh
 
-# Development start (builds from source)
-./scripts/start-dev.sh
+# Docker Compose - Development (builds from source)
+./scripts/start-docker-dev.sh
 
-# Install prerequisites only
-./scripts/install-prerequisites.sh
+# Kubernetes - Deploy to cluster (uses DockerHub images)
+./scripts/deploy-k8s.sh
 
-# Stop services
-docker-compose down
+# Kubernetes - Local development (builds + minikube)
+./scripts/deploy-k8s-local.sh
+
+# Install Docker prerequisites
+./scripts/install-docker-prereqs.sh
+
+# Install Kubernetes prerequisites
+./scripts/install-k8s-prereqs.sh
+
+# Stop Docker Compose services
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
-# Cleanup (remove containers, volumes, images)
-./scripts/cleanup.sh
+# Cleanup Docker
+./scripts/cleanup-docker.sh
+
+# Cleanup Kubernetes
+./scripts/cleanup-k8s.sh
 
 # Run tests
 ./scripts/test.sh
 
 # Run benchmark
-python scripts/benchmark.py
+./scripts/benchmark.sh
 ```
 
 ## Project Structure
 
 ```
-ai-assistant/
+krakenly/
 ├── docker-compose.yml      # Container orchestration
 ├── docs/                   # Documentation
 │   ├── API.md              # API reference
 │   ├── BENCHMARKS.md       # Performance metrics
 │   ├── CONFIGURATION.md    # Configuration options
 │   ├── PREPROCESSING.md    # Document processing
+│   ├── SCRIPTS.md          # Scripts reference
 │   └── TROUBLESHOOTING.md  # Common issues
 ├── scripts/
-│   ├── install-prerequisites.sh  # Install Docker & Docker Compose
-│   ├── start.sh                  # Quick start (DockerHub images)
-│   ├── start-dev.sh              # Dev start (build from source)
-│   ├── test.sh
-│   ├── cleanup.sh
-│   └── benchmark.py
+│   ├── install-docker-prereqs.sh # Install Docker & Docker Compose
+│   ├── install-k8s-prereqs.sh    # Install kubectl & minikube
+│   ├── start-docker.sh           # Docker Compose (DockerHub images)
+│   ├── start-docker-dev.sh       # Docker Compose (build from source)
+│   ├── deploy-k8s.sh             # Kubernetes (DockerHub images)
+│   ├── deploy-k8s-local.sh       # Kubernetes (build + minikube)
+│   ├── cleanup-docker.sh         # Cleanup Docker resources
+│   ├── cleanup-k8s.sh            # Cleanup Kubernetes resources
+│   ├── test.sh                   # End-to-end tests
+│   ├── benchmark.sh              # Performance benchmarks
+│   └── benchmark.py              # Benchmark implementation
 ├── services/
 │   ├── api/                # REST API service
 │   └── web-manager/        # Browser UI

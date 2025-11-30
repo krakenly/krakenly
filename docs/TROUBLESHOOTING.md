@@ -7,8 +7,8 @@ This guide covers common issues and their solutions.
 Check container status and logs:
 
 ```bash
-docker-compose ps
-docker-compose logs
+docker compose ps
+docker compose logs
 ```
 
 **Common causes:**
@@ -66,15 +66,15 @@ curl -X POST http://localhost:5000/index \
 Check container logs for errors:
 
 ```bash
-docker-compose logs api
-docker-compose logs ollama
-docker-compose logs chromadb
+docker compose logs api
+docker compose logs ollama
+docker compose logs chromadb
 ```
 
 **Common fixes:**
-- Rebuild images: `docker-compose up -d --build`
-- Clean restart: `docker-compose down && docker-compose up -d`
-- Full cleanup: `./scripts/cleanup.sh && ./scripts/start.sh`
+- Rebuild images: `docker compose up -d --build`
+- Clean restart: `docker compose down && docker compose up -d`
+- Full cleanup: `./scripts/cleanup-docker.sh && ./scripts/start-docker.sh`
 
 ## Ollama Model Download Fails
 
@@ -82,10 +82,10 @@ If the model download is interrupted:
 
 ```bash
 # Remove partial download
-docker-compose exec ollama ollama rm qwen2.5:3b
+docker compose exec ollama ollama rm qwen2.5:3b
 
 # Re-download
-docker-compose exec ollama ollama pull qwen2.5:3b
+docker compose exec ollama ollama pull qwen2.5:3b
 ```
 
 ## Port Already in Use
@@ -105,13 +105,13 @@ If the API can't connect to ChromaDB:
 
 ```bash
 # Check ChromaDB is running
-docker-compose ps chromadb
+docker compose ps chromadb
 
 # Check ChromaDB logs
-docker-compose logs chromadb
+docker compose logs chromadb
 
 # Restart ChromaDB
-docker-compose restart chromadb
+docker compose restart chromadb
 ```
 
 ## Web UI Not Loading
@@ -120,11 +120,11 @@ If http://localhost:8080 doesn't load:
 
 ```bash
 # Check web-manager container
-docker-compose ps web-manager
-docker-compose logs web-manager
+docker compose ps web-manager
+docker compose logs web-manager
 
 # Rebuild if needed
-docker-compose up -d --build web-manager
+docker compose up -d --build web-manager
 ```
 
 ## Reset Everything
@@ -133,19 +133,19 @@ To start fresh:
 
 ```bash
 # Remove all containers, volumes, and project images
-./scripts/cleanup.sh
+./scripts/cleanup-docker.sh
 
 # Or full cleanup including base images
-./scripts/cleanup.sh --full
+./scripts/cleanup-docker.sh --full
 
 # Start fresh
-./scripts/start.sh
+./scripts/start-docker.sh
 ```
 
 ## Getting Help
 
 If issues persist:
 
-1. Check logs: `docker-compose logs -f`
+1. Check logs: `docker compose logs -f`
 2. Verify health: `curl http://localhost:5000/health`
 3. Run tests: `./scripts/test.sh`

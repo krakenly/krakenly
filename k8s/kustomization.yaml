@@ -1,0 +1,34 @@
+# Krakenly Kubernetes Deployment
+# https://github.com/krakenly/krakenly
+#
+# This kustomization file allows you to deploy all Krakenly components
+# to a Kubernetes cluster with a single command.
+#
+# Usage:
+#   kubectl apply -k k8s/
+#
+# Or deploy individual components:
+#   kubectl apply -f k8s/namespace.yaml
+#   kubectl apply -f k8s/pvc.yaml
+#   kubectl apply -f k8s/ollama.yaml
+#   kubectl apply -f k8s/chromadb.yaml
+#   kubectl apply -f k8s/krakenly.yaml
+#   kubectl apply -f k8s/ingress.yaml  # Optional
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: krakenly
+
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - ollama.yaml
+  - chromadb.yaml
+  - krakenly.yaml
+  # Uncomment to include ingress
+  # - ingress.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: krakenly
+  app.kubernetes.io/managed-by: kustomize

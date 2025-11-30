@@ -147,7 +147,7 @@ if __name__ == "__main__":
     # Wait for services
     if not wait_for_services():
         print("\n⚠ Services not ready. Make sure to run:")
-        print("  ./scripts/start.sh")
+        print("  ./scripts/start-docker.sh")
         exit(1)
     
     # Run examples
