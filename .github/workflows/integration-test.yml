@@ -140,8 +140,10 @@ jobs:
           kubectl apply -f k8s/ollama.yaml -n krakenly
           kubectl apply -f k8s/chromadb.yaml -n krakenly
           
-          # Deploy krakenly with local image
-          sed 's|image: krakenly/krakenly:latest|image: krakenly/krakenly:local\n        imagePullPolicy: Never|' k8s/krakenly.yaml | kubectl apply -n krakenly -f -
+          # Deploy krakenly with local image (Never pull since it's loaded into minikube)
+          sed -e 's|image: krakenly/krakenly:latest|image: krakenly/krakenly:local|' \
+              -e 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Never|' \
+              k8s/krakenly.yaml | kubectl apply -n krakenly -f -
 
       - name: Wait for pods to be ready
         run: |
