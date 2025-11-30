@@ -1,7 +1,10 @@
 # 🐙 Krakenly
 
-[![GitHub](https://img.shields.io/badge/GitHub-Krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
+[![GitHub](https://img.shields.io/badge/GitHub-krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
+[![Release](https://img.shields.io/github/v/release/krakenly/krakenly?logo=github)](https://github.com/krakenly/krakenly/releases)
+[![CI](https://github.com/krakenly/krakenly/actions/workflows/ci.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/ci.yml)
+[![Integration Tests](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Your data. Your AI. Your machine.**
