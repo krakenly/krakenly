@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Krakenly - Development Start Script
+# Krakenly - Docker Compose Development Script
 # Installs prerequisites, builds from source, and starts all services
 # https://github.com/krakenly/krakenly
 #
@@ -25,7 +25,7 @@ START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 echo "========================================="
-echo "  Krakenly - Development Mode"
+echo "  Krakenly - Docker Compose Dev"
 echo "  (Build from Source)"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
@@ -34,7 +34,7 @@ log_info "Start time: $START_TIME_STR"
 
 # Install prerequisites
 log_info "Checking prerequisites..."
-"$(dirname "$0")/install-prerequisites.sh"
+"$(dirname "$0")/install-docker-prereqs.sh"
 echo ""
 
 # Verify docker is accessible

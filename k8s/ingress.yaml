@@ -1,0 +1,66 @@
+# Krakenly Ingress Configuration
+# https://github.com/krakenly/krakenly
+#
+# This exposes the Web UI and API externally.
+# Adjust the host to match your domain or use a LoadBalancer instead.
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: krakenly
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: krakenly
+    app.kubernetes.io/part-of: krakenly
+  annotations:
+    # Uncomment for nginx ingress controller
+    # nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    # nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx  # Change if using different ingress controller
+  rules:
+    - host: krakenly.local  # Change to your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 80
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /index
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /search
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /generate
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /sources
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000

@@ -1,0 +1,95 @@
+# Krakenly - API + Web UI Service
+# https://github.com/krakenly/krakenly
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: krakenly
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: krakenly
+    app.kubernetes.io/part-of: krakenly
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: krakenly
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: krakenly
+        app.kubernetes.io/part-of: krakenly
+    spec:
+      containers:
+        - name: krakenly
+          image: krakenly/krakenly:latest
+          ports:
+            - containerPort: 80
+              name: web
+            - containerPort: 5000
+              name: api
+          env:
+            - name: OLLAMA_HOST
+              value: "http://ollama:11434"
+            - name: CHROMA_HOST
+              value: "http://chromadb:8000"
+            - name: MODEL_NAME
+              value: "qwen2.5:3b"
+            - name: EMBEDDING_MODEL
+              value: "BAAI/bge-small-en-v1.5"
+            - name: INDEX_METADATA_FILE
+              value: "/data/index_metadata.json"
+            - name: API_WORKERS
+              value: "2"
+            - name: API_THREADS
+              value: "2"
+            - name: API_TIMEOUT
+              value: "300"
+          volumeMounts:
+            - name: krakenly-data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: krakenly-data
+          persistentVolumeClaim:
+            claimName: krakenly-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: krakenly
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: krakenly
+    app.kubernetes.io/part-of: krakenly
+spec:
+  selector:
+    app.kubernetes.io/name: krakenly
+  ports:
+    - port: 80
+      targetPort: 80
+      name: web
+    - port: 5000
+      targetPort: 5000
+      name: api
+  type: ClusterIP

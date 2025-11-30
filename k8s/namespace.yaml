@@ -1,0 +1,9 @@
+# Krakenly Kubernetes Namespace
+# https://github.com/krakenly/krakenly
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: krakenly
+  labels:
+    app.kubernetes.io/name: krakenly
+    app.kubernetes.io/part-of: krakenly

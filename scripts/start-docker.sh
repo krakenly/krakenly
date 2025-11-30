@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Krakenly - Quick Start Script
+# Krakenly - Docker Compose Start Script
 # Installs prerequisites and deploys from official DockerHub images
 # https://github.com/krakenly/krakenly
 #
@@ -25,7 +25,7 @@ START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 echo "========================================="
-echo "  Krakenly - Quick Start"
+echo "  Krakenly - Docker Compose"
 echo "  (Using Official Images)"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
@@ -34,7 +34,7 @@ log_info "Start time: $START_TIME_STR"
 
 # Install prerequisites
 log_info "Checking prerequisites..."
-"$(dirname "$0")/install-prerequisites.sh"
+"$(dirname "$0")/install-docker-prereqs.sh"
 echo ""
 
 # Verify docker is accessible

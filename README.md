@@ -93,7 +93,7 @@ This system uses **official images** for maximum reliability and minimal footpri
 Run the prerequisites installer:
 
 ```bash
-./scripts/install-prerequisites.sh
+./scripts/install-docker-prereqs.sh
 ```
 
 This script will:
@@ -118,7 +118,7 @@ git clone https://github.com/krakenly/krakenly.git
 cd krakenly
 
 # Install prerequisites and start (one command!)
-./scripts/start.sh
+./scripts/start-docker.sh
 ```
 
 This will:
@@ -139,7 +139,7 @@ git clone https://github.com/krakenly/krakenly.git
 cd krakenly
 
 # Build from source and start
-./scripts/start-dev.sh
+./scripts/start-docker-dev.sh
 ```
 
 This will:
@@ -151,6 +151,27 @@ This will:
 - Run end-to-end tests automatically
 
 **Note:** First startup downloads the `qwen2.5:3b` model (~1.9GB). Subsequent starts are instant.
+
+### Option 3: Kubernetes Deployment
+
+Deploy to a Kubernetes cluster:
+
+```bash
+# Clone the repository
+git clone https://github.com/krakenly/krakenly.git
+cd krakenly
+
+# Deploy all components
+kubectl apply -k k8s/
+
+# Wait for pods to be ready
+kubectl -n krakenly wait --for=condition=ready pod -l app.kubernetes.io/part-of=krakenly --timeout=300s
+
+# Port forward to access locally
+kubectl -n krakenly port-forward svc/krakenly 8080:80
+```
+
+See [k8s/README.md](k8s/README.md) for detailed Kubernetes configuration options.
 
 ### 3. Verify Services
 
@@ -224,23 +245,35 @@ curl -X POST http://localhost:5000/search/rag \
 ## Common Commands
 
 ```bash
-# Quick start (uses DockerHub images)
-./scripts/start.sh
+# Docker Compose - Quick start (uses DockerHub images)
+./scripts/start-docker.sh
 
-# Development start (builds from source)
-./scripts/start-dev.sh
+# Docker Compose - Development (builds from source)
+./scripts/start-docker-dev.sh
 
-# Install prerequisites only
-./scripts/install-prerequisites.sh
+# Kubernetes - Deploy to cluster (uses DockerHub images)
+./scripts/deploy-k8s.sh
 
-# Stop services
+# Kubernetes - Local development (builds + minikube)
+./scripts/deploy-k8s-local.sh
+
+# Install Docker prerequisites
+./scripts/install-docker-prereqs.sh
+
+# Install Kubernetes prerequisites
+./scripts/install-k8s-prereqs.sh
+
+# Stop Docker Compose services
 docker-compose down
 
 # View logs
 docker-compose logs -f
 
-# Cleanup (remove containers, volumes, images)
-./scripts/cleanup.sh
+# Cleanup Docker
+./scripts/cleanup-docker.sh
+
+# Cleanup Kubernetes
+./scripts/cleanup-k8s.sh
 
 # Run tests
 ./scripts/test.sh
@@ -261,11 +294,15 @@ ai-assistant/
 │   ├── PREPROCESSING.md    # Document processing
 │   └── TROUBLESHOOTING.md  # Common issues
 ├── scripts/
-│   ├── install-prerequisites.sh  # Install Docker & Docker Compose
-│   ├── start.sh                  # Quick start (DockerHub images)
-│   ├── start-dev.sh              # Dev start (build from source)
+│   ├── install-docker-prereqs.sh # Install Docker & Docker Compose
+│   ├── install-k8s-prereqs.sh    # Install kubectl & minikube
+│   ├── start-docker.sh           # Docker Compose (DockerHub images)
+│   ├── start-docker-dev.sh       # Docker Compose (build from source)
+│   ├── deploy-k8s.sh             # Kubernetes (DockerHub images)
+│   ├── deploy-k8s-local.sh       # Kubernetes (build + minikube)
+│   ├── cleanup-docker.sh         # Cleanup Docker resources
+│   ├── cleanup-k8s.sh            # Cleanup Kubernetes resources
 │   ├── test.sh
-│   ├── cleanup.sh
 │   └── benchmark.py
 ├── services/
 │   ├── api/                # REST API service

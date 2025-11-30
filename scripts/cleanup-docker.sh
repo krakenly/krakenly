@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Krakenly - Cleanup Script
+# Krakenly - Docker Compose Cleanup Script
 # Removes containers, images, volumes, and cached data
 # https://github.com/krakenly/krakenly
 #
@@ -23,9 +23,9 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 cd "$(dirname "$0")/.."
 
 echo "========================================="
-echo "  Krakenly Cleanup"
+echo "  Krakenly - Docker Compose Cleanup"
 echo "  https://github.com/krakenly/krakenly"
-echo "========================================="
+echo "=========================================
 echo ""
 
 # Parse arguments

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Krakenly - Prerequisites Installer
+# Krakenly - Docker Prerequisites Installer
 # Installs Docker and Docker Compose
 # https://github.com/krakenly/krakenly
 #
@@ -49,7 +49,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 echo "========================================="
-echo "  Krakenly Prerequisites Installer"
+echo "  Krakenly - Docker Prereqs Installer"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""

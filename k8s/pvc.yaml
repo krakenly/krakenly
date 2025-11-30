@@ -1,0 +1,47 @@
+# Krakenly Persistent Volume Claims
+# https://github.com/krakenly/krakenly
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-data
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: ollama
+    app.kubernetes.io/part-of: krakenly
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: chromadb-data
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: chromadb
+    app.kubernetes.io/part-of: krakenly
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: krakenly-data
+  namespace: krakenly
+  labels:
+    app.kubernetes.io/name: krakenly
+    app.kubernetes.io/part-of: krakenly
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
