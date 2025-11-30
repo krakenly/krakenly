@@ -1,11 +1,11 @@
-# 🦑 Krakenly
+# 🐙 Krakenly
 
 [![GitHub](https://img.shields.io/badge/GitHub-Krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Your data. Your AI. Your machine.**
 
-A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
+A fully local, privacy-focused AI assistant that runs entirely on your machine using Docker. Perfect for personal home servers, NAS devices, or any always-on machine. Unlike cloud-based AI services, Krakenly keeps all your data private—nothing ever leaves your machine.
 
 ## Table of Contents
 
@@ -47,13 +47,14 @@ This system uses **official images** for maximum reliability and minimal footpri
 ## Features
 
 - 🔒 **100% Local**: All services run on your machine - no data leaves your system
+- 🏠 **Home Server Ready**: Perfect for NAS, Raspberry Pi, or any always-on machine
 - ⚡ **Optimized**: Official images, ONNX embeddings, efficient LLM inference
 - 🤖 **Local LLM**: Uses Ollama with quantized models (`qwen2.5:3b` by default)
 - 🔍 **Semantic Search**: Find relevant data using vector similarity
 - 📚 **RAG Support**: Context-aware AI responses using your indexed data
 - 🧠 **Smart Preprocessing**: Enhanced data chunking with entity extraction, relationships, and Q&A formatting
 - 🌐 **Web Interface**: Browser-based UI for file uploads, search, and AI chat
-- 🐳 **Containerized**: All services run as Docker containers (~4.9GB total)
+- 🐳 **Containerized**: All services run as Docker containers
 - 💾 **Persistent Storage**: Your indexed data and models persist across restarts
 
 ## Architecture

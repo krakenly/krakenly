@@ -42,6 +42,7 @@ check_result() {
 
 echo "========================================="
 echo "  Krakenly - End-to-End Test"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
 

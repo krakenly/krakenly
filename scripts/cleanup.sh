@@ -23,7 +23,8 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 cd "$(dirname "$0")/.."
 
 echo "========================================="
-echo "   Krakenly Cleanup"
+echo "  Krakenly Cleanup"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
 

@@ -49,7 +49,8 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 echo "========================================="
-echo "  Krakenly Prerequisites Installer  "
+echo "  Krakenly Prerequisites Installer"
+echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
 
