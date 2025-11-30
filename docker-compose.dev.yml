@@ -1,0 +1,80 @@
+# Development configuration - builds from local source
+# Usage: docker-compose -f docker-compose.dev.yml up -d --build
+
+services:
+  # Ollama - Official image for LLM inference
+  ollama:
+    image: ollama/ollama:latest
+    container_name: krakenly-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=4       # Handle 4 parallel requests
+      - OLLAMA_MAX_LOADED_MODELS=1  # Keep 1 model loaded
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # ChromaDB - Official image for vector database
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: krakenly-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v2/heartbeat || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Krakenly - API + Web UI (built from local source)
+  krakenly:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: krakenly
+    ports:
+      - "8080:80"    # Web UI
+      - "5000:5000"  # API
+    volumes:
+      - krakenly-data:/data
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - CHROMA_HOST=http://chromadb:8000
+      - MODEL_NAME=qwen2.5:3b
+      - EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+      - INDEX_METADATA_FILE=/data/index_metadata.json
+      - API_WORKERS=2
+      - API_THREADS=2
+      - API_TIMEOUT=300
+    depends_on:
+      - ollama
+      - chromadb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+    name: krakenly-ollama
+  chroma-data:
+    name: krakenly-chroma
+  krakenly-data:
+    name: krakenly-data

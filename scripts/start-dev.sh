@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Krakenly - Quick Start Script
-# Installs prerequisites and deploys from official DockerHub images
+# Krakenly - Development Start Script
+# Installs prerequisites, builds from source, and starts all services
 # https://github.com/krakenly/krakenly
 #
 set -e
@@ -25,8 +25,8 @@ START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 echo "========================================="
-echo "  Krakenly - Quick Start"
-echo "  (Using Official Images)"
+echo "  Krakenly - Development Mode"
+echo "  (Build from Source)"
 echo "========================================="
 echo ""
 log_info "Start time: $START_TIME_STR"
@@ -42,9 +42,9 @@ if ! docker info &> /dev/null; then
     exit 1
 fi
 
-# Pull and start services
-log_info "Pulling and starting services from DockerHub..."
-docker-compose up -d
+# Build and start services
+log_info "Building and starting services from local source..."
+docker-compose -f docker-compose.dev.yml up -d --build
 
 echo ""
 log_info "Waiting for services to become healthy..."
@@ -72,7 +72,7 @@ wait_for_health "krakenly Web UI" "http://localhost:8080/health" 90
 
 echo ""
 log_info "Container status:"
-docker-compose ps
+docker-compose -f docker-compose.dev.yml ps
 
 echo ""
 log_success "All services are running!"
@@ -89,9 +89,9 @@ echo "    -H 'Content-Type: application/json' \\"
 echo "    -d '{\"prompt\": \"Hello!\"}'"
 echo ""
 log_info "Useful commands:"
-echo "  - View logs:     docker-compose logs -f"
-echo "  - Stop services: docker-compose down"
-echo "  - Restart:       docker-compose restart"
+echo "  - View logs:     docker-compose -f docker-compose.dev.yml logs -f"
+echo "  - Stop services: docker-compose -f docker-compose.dev.yml down"
+echo "  - Restart:       docker-compose -f docker-compose.dev.yml restart"
 echo ""
 
 # Calculate and display duration

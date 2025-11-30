@@ -61,10 +61,17 @@ COPY services/web-manager/nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisor.conf /etc/supervisor/conf.d/krakenly.conf
 
 # Create necessary directories and set permissions
-RUN mkdir -p /var/log/supervisor /var/run /data \
+# Create cache directories for fastembed/huggingface models (runs as www-data)
+RUN mkdir -p /var/log/supervisor /var/run /data /var/cache/fastembed /var/cache/huggingface \
     && chown -R www-data:www-data /usr/share/nginx/html \
     && chown -R www-data:www-data /data \
-    && chown -R www-data:www-data /app
+    && chown -R www-data:www-data /app \
+    && chown -R www-data:www-data /var/cache/fastembed \
+    && chown -R www-data:www-data /var/cache/huggingface
+
+# Set cache directories for embedding models
+ENV FASTEMBED_CACHE_PATH=/var/cache/fastembed \
+    HF_HOME=/var/cache/huggingface
 
 # Environment variables with defaults
 ENV PYTHONUNBUFFERED=1 \

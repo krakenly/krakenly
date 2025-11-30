@@ -107,19 +107,26 @@ This script will:
 
 There are two ways to run Krakenly:
 
-### Option 1: Using Pre-built Images (Recommended)
+### Option 1: Quick Start (Recommended)
 
-The fastest way to get started. Downloads official images from DockerHub:
+The fastest way to get started. Uses pre-built images from DockerHub:
 
 ```bash
-# Download the docker-compose file
-curl -O https://raw.githubusercontent.com/krakenly/krakenly/main/docker-compose.yml
+# Clone the repository
+git clone https://github.com/krakenly/krakenly.git
+cd krakenly
 
-# Start all services
-docker-compose up -d
+# Install prerequisites and start (one command!)
+./scripts/start.sh
 ```
 
-That's it! Open http://localhost:8080 to access the Web UI.
+This will:
+- Install Docker and Docker Compose (if needed)
+- Pull official images from DockerHub
+- Start all services
+- Run health checks and tests
+
+Open http://localhost:8080 to access the Web UI.
 
 ### Option 2: Build from Source (For Development)
 
@@ -130,14 +137,12 @@ If you want to modify the code or contribute:
 git clone https://github.com/krakenly/krakenly.git
 cd krakenly
 
-# Install prerequisites (Docker, Docker Compose)
-./scripts/install-prerequisites.sh
-
-# Build and start services
-./scripts/start.sh
+# Build from source and start
+./scripts/start-dev.sh
 ```
 
 This will:
+- Install prerequisites (Docker, Docker Compose)
 - Build Docker images locally from source
 - Start all services (Ollama, ChromaDB, Krakenly)
 - Wait for health checks to pass
@@ -218,11 +223,14 @@ curl -X POST http://localhost:5000/search/rag \
 ## Common Commands
 
 ```bash
-# Install prerequisites (Docker, Docker Compose)
-./scripts/install-prerequisites.sh
-
-# Start services
+# Quick start (uses DockerHub images)
 ./scripts/start.sh
+
+# Development start (builds from source)
+./scripts/start-dev.sh
+
+# Install prerequisites only
+./scripts/install-prerequisites.sh
 
 # Stop services
 docker-compose down
@@ -252,8 +260,9 @@ ai-assistant/
 │   ├── PREPROCESSING.md    # Document processing
 │   └── TROUBLESHOOTING.md  # Common issues
 ├── scripts/
-│   ├── install-prerequisites.sh
-│   ├── start.sh
+│   ├── install-prerequisites.sh  # Install Docker & Docker Compose
+│   ├── start.sh                  # Quick start (DockerHub images)
+│   ├── start-dev.sh              # Dev start (build from source)
 │   ├── test.sh
 │   ├── cleanup.sh
 │   └── benchmark.py
