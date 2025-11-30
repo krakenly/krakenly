@@ -20,27 +20,50 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
-# Show help
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Deploy Krakenly to a Kubernetes cluster using official DockerHub images."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help    Show this help message"
-    echo ""
-    echo "Prerequisites:"
-    echo "  - kubectl configured with cluster access"
-    echo "  - Kubernetes cluster running"
-    echo ""
-    echo "This script will:"
-    echo "  1. Deploy all Krakenly components to the 'krakenly' namespace"
-    echo "  2. Wait for pods to be ready"
-    echo "  3. Offer to start port-forward for local access"
-    echo ""
-    echo "For local development with minikube, use: ./scripts/deploy-k8s-local.sh"
-    exit 0
-fi
+# Parse arguments
+SKIP_CONFIRM=false
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --yes|-y)
+            SKIP_CONFIRM=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Deploy Krakenly to a Kubernetes cluster using official DockerHub images."
+            echo ""
+            echo "Options:"
+            echo "  -y, --yes       Skip confirmation prompts"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "Prerequisites:"
+            echo "  - kubectl configured with cluster access"
+            echo "  - Kubernetes cluster running"
+            echo ""
+            echo "This script will:"
+            echo "  1. Deploy all Krakenly components to the 'krakenly' namespace"
+            echo "  2. Wait for pods to be ready"
+            echo "  3. Offer to start port-forward for local access"
+            echo ""
+            echo "For local development with minikube, use: ./scripts/deploy-k8s-local.sh"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 echo "========================================="
 echo "  Krakenly - Kubernetes Deployment"
@@ -71,11 +94,15 @@ echo ""
 # Confirm deployment
 CONTEXT=$(kubectl config current-context)
 log_warning "Deploying to context: $CONTEXT"
-read -p "Continue? (y/n) " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    log_info "Deployment cancelled."
-    exit 0
+if [[ "$SKIP_CONFIRM" != true ]]; then
+    read -p "Continue? (y/n) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Deployment cancelled."
+        exit 0
+    fi
+else
+    log_info "Confirmation skipped (--yes flag provided)"
 fi
 
 echo ""
@@ -144,12 +171,17 @@ echo "  - Health check:  kubectl -n krakenly exec -it deploy/krakenly -- curl lo
 echo ""
 
 # Offer to start port-forward
-read -p "Start port-forward now? (y/n) " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    log_info "Starting port-forward... (Ctrl+C to stop)"
+if [[ "$SKIP_CONFIRM" != true ]]; then
+    read -p "Start port-forward now? (y/n) " -n 1 -r
     echo ""
-    echo -e "${GREEN}🐙 Open the Web UI: http://localhost:8080${NC}"
-    echo ""
-    kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Starting port-forward... (Ctrl+C to stop)"
+        echo ""
+        echo -e "${GREEN}🐙 Open the Web UI: http://localhost:8080${NC}"
+        echo ""
+        kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000
+    fi
+else
+    log_info "Skipping port-forward prompt (--yes flag provided)"
+    echo "  To access, run: kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000"
 fi

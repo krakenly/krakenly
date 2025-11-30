@@ -18,23 +18,40 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# Show help
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Install Kubernetes prerequisites for local Krakenly development."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help    Show this help message"
-    echo ""
-    echo "This script will install:"
-    echo "  - Docker (via install-docker-prereqs.sh)"
-    echo "  - kubectl (Kubernetes CLI)"
-    echo "  - minikube (local Kubernetes cluster)"
-    echo ""
-    echo "After installation, run: ./scripts/deploy-k8s-local.sh"
-    exit 0
-fi
+# Parse arguments
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Install Kubernetes prerequisites for local Krakenly development."
+            echo ""
+            echo "Options:"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "This script will install:"
+            echo "  - Docker (via install-docker-prereqs.sh)"
+            echo "  - kubectl (Kubernetes CLI)"
+            echo "  - minikube (local Kubernetes cluster)"
+            echo ""
+            echo "After installation, run: ./scripts/deploy-k8s-local.sh"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 # Check if running as root
 if [ "$EUID" -eq 0 ]; then 

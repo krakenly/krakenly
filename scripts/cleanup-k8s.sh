@@ -29,6 +29,8 @@ echo ""
 # Parse arguments
 DELETE_DATA=false
 DELETE_MINIKUBE=false
+SKIP_CONFIRM=false
+VERBOSE=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -45,6 +47,15 @@ while [[ $# -gt 0 ]]; do
             DELETE_MINIKUBE=true
             shift
             ;;
+        --yes|-y)
+            SKIP_CONFIRM=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -52,6 +63,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --data, -d      Also delete persistent volume claims (your indexed data)"
             echo "  --minikube, -m  Also delete the minikube cluster (local only)"
             echo "  --all, -a       Delete everything (data + minikube)"
+            echo "  --yes, -y       Skip confirmation prompt"
+            echo "  --verbose, -v   Enable verbose output"
             echo "  --help, -h      Show this help message"
             echo ""
             echo "Examples:"
@@ -94,11 +107,15 @@ fi
 echo ""
 
 # Confirm
-read -p "Are you sure? (y/n) " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    log_info "Cleanup cancelled."
-    exit 0
+if [[ "$SKIP_CONFIRM" != true ]]; then
+    read -p "Are you sure? (y/n) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_info "Cleanup cancelled."
+        exit 0
+    fi
+else
+    log_info "Confirmation skipped (--yes flag provided)"
 fi
 
 echo ""

@@ -20,25 +20,48 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
-# Show help
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Build Krakenly from source and deploy to local Minikube cluster."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help    Show this help message"
-    echo ""
-    echo "This script will:"
-    echo "  1. Install Docker, kubectl, and minikube if not present"
-    echo "  2. Start minikube cluster if not running"
-    echo "  3. Build Krakenly image from local source"
-    echo "  4. Deploy all components to minikube"
-    echo "  5. Offer to start port-forward and run tests"
-    echo ""
-    echo "For production deployment, use: ./scripts/deploy-k8s.sh"
-    exit 0
-fi
+# Parse arguments
+SKIP_CONFIRM=false
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --yes|-y)
+            SKIP_CONFIRM=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Build Krakenly from source and deploy to local Minikube cluster."
+            echo ""
+            echo "Options:"
+            echo "  -y, --yes       Skip confirmation prompts"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "This script will:"
+            echo "  1. Install Docker, kubectl, and minikube if not present"
+            echo "  2. Start minikube cluster if not running"
+            echo "  3. Build Krakenly image from local source"
+            echo "  4. Deploy all components to minikube"
+            echo "  5. Offer to start port-forward and run tests"
+            echo ""
+            echo "For production deployment, use: ./scripts/deploy-k8s.sh"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 echo "========================================="
 echo "  Krakenly - K8s Local Deployment"
@@ -207,8 +230,14 @@ echo "  - Delete:        kubectl delete -k k8s/"
 echo ""
 
 # Offer to start port-forward and run tests
-read -p "Start port-forward and run tests? (y/n) " -n 1 -r
-echo ""
+if [[ "$SKIP_CONFIRM" != true ]]; then
+    read -p "Start port-forward and run tests? (y/n) " -n 1 -r
+    echo ""
+else
+    REPLY="y"
+    log_info "Auto-starting port-forward and tests (--yes flag provided)"
+fi
+
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log_info "Starting port-forward in background..."
     kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &

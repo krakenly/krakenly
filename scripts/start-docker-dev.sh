@@ -20,26 +20,43 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$(dirname "$0")"/..
 
-# Show help
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Start Krakenly using Docker Compose, building from local source code."
-    echo ""
-    echo "Options:"
-    echo "  -h, --help    Show this help message"
-    echo ""
-    echo "This script will:"
-    echo "  1. Install Docker and Docker Compose if not present"
-    echo "  2. Build Docker images from local source"
-    echo "  3. Start all services (Ollama, ChromaDB, Krakenly)"
-    echo "  4. Wait for health checks to pass"
-    echo "  5. Run end-to-end tests"
-    echo ""
-    echo "Use this script for development when you want to test local changes."
-    echo "For production, use: ./scripts/start-docker.sh"
-    exit 0
-fi
+# Parse arguments
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Start Krakenly using Docker Compose, building from local source code."
+            echo ""
+            echo "Options:"
+            echo "  -v, --verbose   Enable verbose output"
+            echo "  -h, --help      Show this help message"
+            echo ""
+            echo "This script will:"
+            echo "  1. Install Docker and Docker Compose if not present"
+            echo "  2. Build Docker images from local source"
+            echo "  3. Start all services (Ollama, ChromaDB, Krakenly)"
+            echo "  4. Wait for health checks to pass"
+            echo "  5. Run end-to-end tests"
+            echo ""
+            echo "Use this script for development when you want to test local changes."
+            echo "For production, use: ./scripts/start-docker.sh"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
 
 # Record start time
 START_TIME=$(date +%s)

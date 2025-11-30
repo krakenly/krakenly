@@ -32,6 +32,7 @@ echo ""
 DELETE_DATA=false
 DELETE_IMAGES=false
 SKIP_CONFIRM=false
+VERBOSE=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -52,6 +53,11 @@ while [[ $# -gt 0 ]]; do
             SKIP_CONFIRM=true
             shift
             ;;
+        --verbose|-v)
+            VERBOSE=true
+            set -x
+            shift
+            ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
@@ -60,6 +66,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --images, -i  Also delete base images (Ollama, ChromaDB)"
             echo "  --all, -a     Delete everything (data + images + prune)"
             echo "  --yes, -y     Skip confirmation prompt (for automation)"
+            echo "  --verbose, -v Enable verbose output"
             echo "  --help, -h    Show this help message"
             echo ""
             echo "Examples:"
