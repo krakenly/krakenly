@@ -39,8 +39,26 @@ jobs:
       - name: Start services with Docker Compose
         run: |
           docker compose -f docker-compose.yml up -d
-          echo "Waiting for services to be ready..."
-          sleep 30
+          echo "Waiting for services to start..."
+          sleep 60
+
+      - name: Wait for Ollama to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:11434/api/tags | grep -q "models"; then
+              echo "Ollama is ready"
+              exit 0
+            fi
+            echo "Waiting for Ollama... ($i/30)"
+            sleep 5
+          done
+          echo "Ollama failed to become ready"
+          docker compose logs ollama
+          exit 1
+
+      - name: Pull LLM model
+        run: |
+          docker exec krakenly-ollama ollama pull qwen2.5:3b
 
       - name: Wait for API to be healthy
         run: |
@@ -55,10 +73,6 @@ jobs:
           echo "API failed to become healthy"
           docker compose logs
           exit 1
-
-      - name: Pull LLM model
-        run: |
-          docker exec krakenly-ollama ollama pull qwen2.5:3b
 
       - name: Run integration tests
         run: |
