@@ -70,7 +70,9 @@ jobs:
 
       - name: Cleanup
         if: always()
-        run: docker compose down -v
+        run: |
+          docker compose down -v
+          docker image prune -af
 
   k8s-integration:
     name: Kubernetes Integration
@@ -145,4 +147,5 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
+          pkill -f "kubectl.*port-forward" || true
           minikube delete
