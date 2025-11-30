@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Krakenly Example: Index sample documents and perform searches
+Krakenly Example: Index sample data and perform searches
 """
 import requests
 import json
@@ -28,11 +28,11 @@ def wait_for_services():
     print("✗ Services not ready after 60 seconds")
     return False
 
-def index_documents():
-    """Index sample documents"""
-    print("\n📚 Indexing sample documents...")
+def index_data():
+    """Index sample data"""
+    print("\n📚 Indexing sample data...")
     
-    documents = [
+    sample_data = [
         {
             "text": "Kubernetes is an open-source container orchestration platform that automates deploying, scaling, and managing containerized applications. It was originally designed by Google and is now maintained by the Cloud Native Computing Foundation.",
             "metadata": {
@@ -68,7 +68,7 @@ def index_documents():
     ]
     
     indexed = 0
-    for doc in documents:
+    for doc in sample_data:
         response = requests.post(
             f"{API_URL}/index",
             json=doc
@@ -78,7 +78,7 @@ def index_documents():
         else:
             print(f"✗ Error indexing {doc['metadata']['source']}: {response.text}")
     
-    print(f"✓ Indexed {indexed} documents")
+    print(f"✓ Indexed {indexed} data items")
 
 def search_example():
     """Perform a simple search"""
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         exit(1)
     
     # Run examples
-    index_documents()
+    index_data()
     time.sleep(2)  # Wait for indexing to complete
     
     health_check()
@@ -160,6 +160,6 @@ if __name__ == "__main__":
     
     print("\n✅ Example completed!")
     print("\nNext steps:")
-    print("  - Index your own documents")
+    print("  - Index your own data")
     print("  - Try different search queries")
     print("  - Experiment with RAG parameters")

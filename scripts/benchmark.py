@@ -4,7 +4,7 @@ Krakenly Benchmark Script
 https://github.com/krakenly/krakenly
 
 This script benchmarks Krakenly's RAG performance by:
-1. Uploading a sample document
+1. Uploading sample data
 2. Running queries of varying complexity
 3. Collecting timing and throughput metrics
 4. Generating a comprehensive performance report
@@ -71,7 +71,7 @@ BENCHMARK_QUERIES = {
         {"query": "describe the key features", "top_k": 3, "max_tokens": 128},
         {"query": "explain RAG-based chat", "top_k": 3, "max_tokens": 128},
         {"query": "what are the performance benchmarks", "top_k": 3, "max_tokens": 128},
-        {"query": "describe document indexing", "top_k": 3, "max_tokens": 128},
+        {"query": "describe data indexing", "top_k": 3, "max_tokens": 128},
         {"query": "explain the privacy features", "top_k": 3, "max_tokens": 128},
         {"query": "list the common commands", "top_k": 3, "max_tokens": 128},
         {"query": "describe the design philosophy", "top_k": 3, "max_tokens": 128},
@@ -81,7 +81,7 @@ BENCHMARK_QUERIES = {
         {"query": "compare all the different services and their purposes", "top_k": 5, "max_tokens": 200},
         {"query": "describe all API endpoints with their methods and descriptions", "top_k": 5, "max_tokens": 200},
         {"query": "explain the performance characteristics and what affects response time", "top_k": 5, "max_tokens": 200},
-        {"query": "summarize the entire document including features, architecture, and requirements", "top_k": 5, "max_tokens": 200},
+        {"query": "summarize all the content including features, architecture, and requirements", "top_k": 5, "max_tokens": 200},
         {"query": "what makes this different from other AI assistants and why", "top_k": 5, "max_tokens": 200},
         {"query": "describe the complete indexing and search workflow", "top_k": 5, "max_tokens": 200},
         {"query": "explain all the hardware requirements and performance expectations", "top_k": 5, "max_tokens": 200},

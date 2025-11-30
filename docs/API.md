@@ -10,7 +10,7 @@ Krakenly provides two main interfaces:
 
 ## Web Manager (Port 8080)
 
-Browser-based interface for managing documents and chatting with AI.
+Browser-based interface for managing data and chatting with AI.
 
 **Access at:** http://localhost:8080
 
@@ -18,8 +18,8 @@ Browser-based interface for managing documents and chatting with AI.
 
 | Feature | Description |
 |---------|-------------|
-| **Upload files** | Drag & drop or click to upload documents |
-| **Manage sources** | View and delete indexed documents |
+| **Upload files** | Drag & drop or click to upload data |
+| **Manage sources** | View and delete indexed data |
 | **Semantic search** | Search with auto-optimized query complexity |
 | **AI chat** | Conversational interface with markdown formatting |
 
@@ -30,7 +30,7 @@ Browser-based interface for managing documents and chatting with AI.
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/health` | GET | Health check for all services |
-| `/index` | POST | Index a document |
+| `/index` | POST | Index data |
 | `/index/upload` | POST | Upload and index a file |
 | `/sources` | GET | List indexed sources |
 | `/sources/<id>` | DELETE | Delete a source |
@@ -67,9 +67,9 @@ GET /health
 
 ---
 
-### Index Document
+### Index Data
 
-Index a text document with optional metadata.
+Index data with optional metadata.
 
 ```http
 POST /index
@@ -144,7 +144,7 @@ curl -X POST http://localhost:5000/index/upload \
 
 ### List Sources
 
-Get all indexed document sources.
+Get all indexed data sources.
 
 ```http
 GET /sources
@@ -169,7 +169,7 @@ GET /sources
 
 ### Delete Source
 
-Delete an indexed document source.
+Delete an indexed data source.
 
 ```http
 DELETE /sources/<id>
@@ -192,7 +192,7 @@ DELETE /sources/<id>
 
 ### Semantic Search
 
-Search indexed documents using semantic similarity.
+Search indexed data using semantic similarity.
 
 ```http
 POST /search
@@ -236,7 +236,7 @@ Content-Type: application/json
 
 Perform semantic search and generate an AI response based on the results.
 
-> **Note:** This is the primary endpoint for chat interactions. All responses are grounded in your indexed documents.
+> **Note:** This is the primary endpoint for chat interactions. All responses are grounded in your indexed data.
 
 ```http
 POST /search/rag
@@ -256,7 +256,7 @@ Content-Type: application/json
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | `query` | string | Yes | - | Question to ask |
-| `top_k` | integer | No | 3 | Number of context documents |
+| `top_k` | integer | No | 3 | Number of context data items |
 | `max_tokens` | integer | No | 512 | Maximum response length |
 
 **Response:**
@@ -278,7 +278,7 @@ Content-Type: application/json
 
 ### Generate Text
 
-Generate text from a prompt without document context.
+Generate text from a prompt without data context.
 
 ```http
 POST /generate

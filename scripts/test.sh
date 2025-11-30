@@ -60,12 +60,12 @@ else
 fi
 echo ""
 
-# Step 2: Index sample document
+# Step 2: Index sample data
 echo "========================================="
-log_info "Indexing sample document..."
+log_info "Indexing sample data..."
 echo "========================================="
 
-SAMPLE_TEXT="Krakenly is a microservices application with three components: Ollama for LLM inference on port 11434, ChromaDB for vector storage on port 8000, and a unified API service on port 5000. It supports document indexing, semantic search, and RAG-based question answering."
+SAMPLE_TEXT="Krakenly is a microservices application with three components: Ollama for LLM inference on port 11434, ChromaDB for vector storage on port 8000, and a unified API service on port 5000. It supports data indexing, semantic search, and RAG-based question answering."
 
 INDEX_RESULT=$(curl -s -X POST "$API_URL/index" \
   -H "Content-Type: application/json" \

@@ -116,7 +116,7 @@ docker-compose exec ollama ollama pull phi3:mini
    docker-compose up -d --build api
    ```
 
-> **Warning:** Changing the embedding model requires re-indexing all documents, as vectors are not compatible between models.
+> **Warning:** Changing the embedding model requires re-indexing all data, as vectors are not compatible between models.
 
 ---
 
