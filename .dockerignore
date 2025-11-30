@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# Development files
+.env
+.env.*
+*.pyc
+__pycache__
+*.pyo
+*.pyd
+.Python
+*.so
+.venv
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+tests/
+scripts/
+examples/
+
+# Docker (avoid recursive builds)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+benchmark_results.json
+
+# OS files
+.DS_Store
+Thumbs.db
