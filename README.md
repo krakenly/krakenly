@@ -28,7 +28,7 @@ A fully local, privacy-focused AI assistant that runs entirely on your machine u
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Deployment Options](#deployment-options)
-  - [Docker Compose](#docker compose)
+  - [Docker Compose](#docker-compose)
   - [Kubernetes](#kubernetes)
   - [Prerequisites](#prerequisites)
 - [Usage](#usage)
