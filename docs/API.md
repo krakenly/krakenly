@@ -67,7 +67,7 @@ GET /health
 
 ---
 
-### Index Document
+### Index Data
 
 Index data with optional metadata.
 

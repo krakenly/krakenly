@@ -1,4 +1,4 @@
-# Document Preprocessing
+# Data Preprocessing
 
 This document explains how Krakenly processes and chunks data for optimal search accuracy.
 
@@ -12,7 +12,7 @@ Traditional search requires exact keyword matches. Semantic search improves this
 
 | Approach | Pros | Cons |
 |----------|------|------|
-| **No chunking** | Simple | Long content overwhelm context |
+| **No chunking** | Simple | Long content overwhelms context |
 | **Fixed-size chunks** | Predictable | May split mid-sentence |
 | **Smart chunking** | Semantic boundaries | More complex |
 | **Multi-view chunking** | ✅ Best retrieval | More storage |
@@ -21,9 +21,9 @@ This system uses **multi-view chunking** - creating multiple representations of 
 
 ---
 
-## JSON Document Processing
+## JSON Data Processing
 
-JSON data are processed into 6 different chunk types:
+JSON data is processed into 6 different chunk types:
 
 ### 1. Overview Chunk
 
@@ -122,9 +122,9 @@ A: The users are: Alice, Bob, Charlie
 
 ---
 
-## Text/Markdown Document Processing
+## Text/Markdown Data Processing
 
-Text and Markdown data are processed into 3 chunk types:
+Text and Markdown data is processed into 3 chunk types:
 
 ### 1. Summary Chunk
 
@@ -221,7 +221,7 @@ The system generates:
 
 ---
 
-## Example: Processing a Markdown Document
+## Example: Processing Markdown Data
 
 Given data with 3 sections and 2 definitions:
 
