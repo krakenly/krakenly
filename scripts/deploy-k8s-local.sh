@@ -23,11 +23,16 @@ cd "$(dirname "$0")"/..
 # Parse arguments
 SKIP_CONFIRM=false
 VERBOSE=false
+PUBLIC_ACCESS=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --yes|-y)
             SKIP_CONFIRM=true
+            shift
+            ;;
+        --public|-p)
+            PUBLIC_ACCESS=true
             shift
             ;;
         --verbose|-v)
@@ -42,6 +47,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  -y, --yes       Skip confirmation prompts"
+            echo "  -p, --public    Expose services on all interfaces (0.0.0.0)"
             echo "  -v, --verbose   Enable verbose output"
             echo "  -h, --help      Show this help message"
             echo ""
@@ -119,13 +125,25 @@ fi
 
 echo ""
 
-# Check if minikube is running
-if ! minikube status &> /dev/null; then
+# Check if minikube is running and healthy
+start_minikube() {
     log_info "Starting minikube..."
     minikube start --memory=8192 --cpus=4
     log_success "Minikube started"
+}
+
+# Check minikube status - handle stale/broken state
+if minikube status &> /dev/null; then
+    # Verify the docker daemon is actually accessible
+    if ! eval $(minikube docker-env) 2>/dev/null || ! docker info &> /dev/null; then
+        log_warning "Minikube state is stale. Restarting..."
+        minikube delete --purge 2>/dev/null || true
+        start_minikube
+    else
+        log_success "Minikube is running"
+    fi
 else
-    log_success "Minikube is running"
+    start_minikube
 fi
 
 # Enable required addons
@@ -141,41 +159,16 @@ eval $(minikube docker-env)
 log_info "Building Krakenly image from source..."
 docker build -t krakenly/krakenly:local .
 
-# Create a temporary kustomization overlay for local image
-log_info "Creating local deployment configuration..."
-TEMP_DIR=$(mktemp -d)
-cat > "$TEMP_DIR/kustomization.yaml" << EOF
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
+# Deploy base manifests first
+log_info "Deploying base manifests..."
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/pvc.yaml
+kubectl apply -f k8s/ollama.yaml
+kubectl apply -f k8s/chromadb.yaml
 
-resources:
-  - ../k8s/namespace.yaml
-  - ../k8s/pvc.yaml
-  - ../k8s/ollama.yaml
-  - ../k8s/chromadb.yaml
-  - ../k8s/krakenly.yaml
-
-namespace: krakenly
-
-patches:
-  - patch: |-
-      - op: replace
-        path: /spec/template/spec/containers/0/image
-        value: krakenly/krakenly:local
-      - op: replace
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Never
-    target:
-      kind: Deployment
-      name: krakenly
-EOF
-
-# Deploy to minikube
-log_info "Deploying to Minikube..."
-kubectl apply -k "$TEMP_DIR"
-
-# Cleanup temp dir
-rm -rf "$TEMP_DIR"
+# Deploy krakenly with local image override
+log_info "Deploying Krakenly with local image..."
+cat k8s/krakenly.yaml | sed 's|krakenly/krakenly:latest|krakenly/krakenly:local|g' | sed 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Never|g' | kubectl apply -f -
 
 # Wait for pods to be ready
 log_info "Waiting for pods to be ready (this may take a few minutes)..."
@@ -240,16 +233,22 @@ fi
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log_info "Starting port-forward in background..."
-    kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &
+    if [[ "$PUBLIC_ACCESS" = true ]]; then
+        log_warning "Exposing services on all interfaces (0.0.0.0)"
+        kubectl -n krakenly port-forward --address 0.0.0.0 svc/krakenly 8080:80 5000:5000 &
+    else
+        kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000 &
+    fi
     PORT_FORWARD_PID=$!
     
     # Wait for port-forward to be ready
     sleep 3
     
-    # Pull the model if needed
-    log_info "Ensuring LLM model is available..."
+    # Pull the model if needed (this can take a few minutes for first run)
+    log_info "Ensuring LLM model is available (this may take a few minutes on first run)..."
     OLLAMA_POD=$(kubectl -n krakenly get pod -l app.kubernetes.io/name=ollama -o jsonpath='{.items[0].metadata.name}')
-    kubectl -n krakenly exec "$OLLAMA_POD" -- ollama pull qwen2.5:3b 2>/dev/null || true
+    kubectl -n krakenly exec "$OLLAMA_POD" -- ollama pull qwen2.5:3b
+    log_success "LLM model is ready"
     
     echo ""
     log_info "Running tests..."
@@ -257,7 +256,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     "$(dirname "$0")/test.sh"
     
     echo ""
-    echo -e "${GREEN}Open the Web UI: http://localhost:8080${NC}"
+    if [[ "$PUBLIC_ACCESS" = true ]]; then
+        PUBLIC_IP=$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+        echo -e "${GREEN}Open the Web UI: http://${PUBLIC_IP}:8080${NC}"
+    else
+        echo -e "${GREEN}Open the Web UI: http://localhost:8080${NC}"
+    fi
     echo ""
     log_info "Port-forward running in background (PID: $PORT_FORWARD_PID)"
     log_info "To stop: kill $PORT_FORWARD_PID"

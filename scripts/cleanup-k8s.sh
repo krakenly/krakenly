@@ -150,6 +150,13 @@ if [ "$DELETE_MINIKUBE" = true ]; then
     fi
 fi
 
+# Prune unused Docker images
+if command -v docker &> /dev/null && docker info &> /dev/null; then
+    log_info "Pruning unused Docker images..."
+    docker image prune -f 2>/dev/null || true
+    log_success "Unused Docker images removed"
+fi
+
 echo ""
 log_success "Cleanup complete!"
 echo ""
