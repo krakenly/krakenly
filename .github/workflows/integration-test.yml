@@ -58,7 +58,7 @@ jobs:
 
       - name: Pull LLM model
         run: |
-          docker exec krakenly-ollama-1 ollama pull qwen2.5:3b
+          docker exec krakenly-ollama ollama pull qwen2.5:3b
 
       - name: Run integration tests
         run: |
@@ -107,13 +107,13 @@ jobs:
           # Create namespace
           kubectl create namespace krakenly
           
-          # Apply base manifests
-          kubectl apply -f k8s/base/pvc.yaml -n krakenly
-          kubectl apply -f k8s/base/ollama.yaml -n krakenly
-          kubectl apply -f k8s/base/chromadb.yaml -n krakenly
+          # Apply manifests
+          kubectl apply -f k8s/pvc.yaml -n krakenly
+          kubectl apply -f k8s/ollama.yaml -n krakenly
+          kubectl apply -f k8s/chromadb.yaml -n krakenly
           
           # Deploy krakenly with local image
-          sed 's|image: krakenly/krakenly:latest|image: krakenly/krakenly:local\n        imagePullPolicy: Never|' k8s/base/krakenly.yaml | kubectl apply -n krakenly -f -
+          sed 's|image: krakenly/krakenly:latest|image: krakenly/krakenly:local\n        imagePullPolicy: Never|' k8s/krakenly.yaml | kubectl apply -n krakenly -f -
 
       - name: Wait for pods to be ready
         run: |
