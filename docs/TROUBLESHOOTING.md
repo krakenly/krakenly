@@ -74,7 +74,7 @@ docker compose logs chromadb
 **Common fixes:**
 - Rebuild images: `docker compose up -d --build`
 - Clean restart: `docker compose down && docker compose up -d`
-- Full cleanup: `./scripts/cleanup.sh && ./scripts/start.sh`
+- Full cleanup: `./scripts/cleanup-docker.sh && ./scripts/start-docker.sh`
 
 ## Ollama Model Download Fails
 
@@ -133,13 +133,13 @@ To start fresh:
 
 ```bash
 # Remove all containers, volumes, and project images
-./scripts/cleanup.sh
+./scripts/cleanup-docker.sh
 
 # Or full cleanup including base images
-./scripts/cleanup.sh --full
+./scripts/cleanup-docker.sh --full
 
 # Start fresh
-./scripts/start.sh
+./scripts/start-docker.sh
 ```
 
 ## Getting Help
