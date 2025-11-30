@@ -65,12 +65,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Record start time (local timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
 echo "========================================="
 echo "  Krakenly - Kubernetes Deployment"
 echo "  (Using Official Images)"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
+log_info "Start time: $START_TIME_STR"
 
 # Check for kubectl
 if ! command -v kubectl &> /dev/null; then
@@ -185,3 +190,13 @@ else
     log_info "Skipping port-forward prompt (--yes flag provided)"
     echo "  To access, run: kubectl -n krakenly port-forward svc/krakenly 8080:80 5000:5000"
 fi
+
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"

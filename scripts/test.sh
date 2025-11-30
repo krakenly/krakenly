@@ -57,6 +57,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Record start time (local timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
 API_URL="${API_URL:-http://localhost:5000}"
 TESTS_PASSED=true
 
@@ -194,9 +198,25 @@ done
 
 TOTAL=${#TEST_ORDER[@]}
 echo ""
+
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
 if [ "$TESTS_PASSED" = true ]; then
     echo -e "${GREEN}Results: $PASSED/$TOTAL tests passed${NC}"
 else
     echo -e "${RED}Results: $PASSED/$TOTAL tests passed, $FAILED failed${NC}"
+fi
+
+echo ""
+log_info "Start time: $START_TIME_STR"
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"
+
+if [ "$TESTS_PASSED" != true ]; then
     exit 1
 fi

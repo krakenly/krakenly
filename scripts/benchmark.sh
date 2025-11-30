@@ -60,11 +60,16 @@ done
 
 cd "$(dirname "$0")"/..
 
+# Record start time (local timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
 echo "========================================="
 echo "  🐙 Krakenly - Benchmark"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
+log_info "Start time: $START_TIME_STR"
 
 # Check if Python is available
 if ! command -v python3 &> /dev/null; then
@@ -107,3 +112,14 @@ log_info "Starting benchmark..."
 echo ""
 
 python3 "$(dirname "$0")/benchmark.py" "${PASS_ARGS[@]}"
+
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
+echo ""
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"

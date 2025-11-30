@@ -57,7 +57,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Record start time
+# Record start time (local timezone)
 START_TIME=$(date +%s)
 START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
 

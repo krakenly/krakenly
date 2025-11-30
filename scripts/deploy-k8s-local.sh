@@ -69,12 +69,17 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Record start time (local timezone)
+START_TIME=$(date +%s)
+START_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+
 echo "========================================="
 echo "  Krakenly - K8s Local Deployment"
 echo "  (Build from Source + Minikube)"
 echo "  https://github.com/krakenly/krakenly"
 echo "========================================="
 echo ""
+log_info "Start time: $START_TIME_STR"
 
 # Function to install kubectl
 install_kubectl() {
@@ -266,3 +271,13 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     log_info "Port-forward running in background (PID: $PORT_FORWARD_PID)"
     log_info "To stop: kill $PORT_FORWARD_PID"
 fi
+
+# Calculate and display duration
+END_TIME=$(date +%s)
+END_TIME_STR=$(date '+%Y-%m-%d %H:%M:%S %Z')
+DURATION=$((END_TIME - START_TIME))
+MINUTES=$((DURATION / 60))
+SECONDS=$((DURATION % 60))
+
+log_info "End time: $END_TIME_STR"
+log_info "Total duration: ${MINUTES}m ${SECONDS}s"
