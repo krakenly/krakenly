@@ -4,11 +4,16 @@ on:
   pull_request:
     branches:
       - main
+    types: [labeled]
+  workflow_dispatch:
 
 jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-to-merge')
 
     steps:
       - name: Checkout repository
