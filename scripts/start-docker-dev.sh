@@ -83,7 +83,7 @@ fi
 
 # Build and start services
 log_info "Building and starting services from local source..."
-docker-compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker compose.dev.yml up -d --build
 
 echo ""
 log_info "Waiting for services to become healthy..."
@@ -111,7 +111,7 @@ wait_for_health "krakenly Web UI" "http://localhost:8080/health" 90
 
 echo ""
 log_info "Container status:"
-docker-compose -f docker-compose.dev.yml ps
+docker compose -f docker compose.dev.yml ps
 
 echo ""
 log_success "All services are running!"
@@ -128,9 +128,9 @@ echo "    -H 'Content-Type: application/json' \\"
 echo "    -d '{\"prompt\": \"Hello!\"}'"
 echo ""
 log_info "Useful commands:"
-echo "  - View logs:     docker-compose -f docker-compose.dev.yml logs -f"
-echo "  - Stop services: docker-compose -f docker-compose.dev.yml down"
-echo "  - Restart:       docker-compose -f docker-compose.dev.yml restart"
+echo "  - View logs:     docker compose -f docker compose.dev.yml logs -f"
+echo "  - Stop services: docker compose -f docker compose.dev.yml down"
+echo "  - Restart:       docker compose -f docker compose.dev.yml restart"
 echo ""
 
 # Calculate and display duration

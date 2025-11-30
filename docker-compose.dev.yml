@@ -1,5 +1,5 @@
 # Development configuration - builds from local source
-# Usage: docker-compose -f docker-compose.dev.yml up -d --build
+# Usage: docker compose -f docker compose.dev.yml up -d --build
 
 services:
   # Ollama - Official image for LLM inference

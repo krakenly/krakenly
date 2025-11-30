@@ -58,6 +58,27 @@ spec:
                 name: krakenly
                 port:
                   number: 5000
+          - path: /stats
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /list
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
+          - path: /models
+            pathType: Prefix
+            backend:
+              service:
+                name: krakenly
+                port:
+                  number: 5000
           # Web UI (catch-all, must be last)
           - path: /
             pathType: Prefix

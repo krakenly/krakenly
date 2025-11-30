@@ -7,8 +7,8 @@ This guide covers common issues and their solutions.
 Check container status and logs:
 
 ```bash
-docker-compose ps
-docker-compose logs
+docker compose ps
+docker compose logs
 ```
 
 **Common causes:**
@@ -40,7 +40,7 @@ docker info | grep Memory
 
 **Solutions:**
 - Close other applications to free memory
-- Use a smaller model: Set `MODEL_NAME=qwen2.5:0.5b` in `docker-compose.yml`
+- Use a smaller model: Set `MODEL_NAME=qwen2.5:0.5b` in `docker compose.yml`
 - Increase Docker's memory limit (Docker Desktop settings)
 
 ## Search Returns No Results
@@ -66,14 +66,14 @@ curl -X POST http://localhost:5000/index \
 Check container logs for errors:
 
 ```bash
-docker-compose logs api
-docker-compose logs ollama
-docker-compose logs chromadb
+docker compose logs api
+docker compose logs ollama
+docker compose logs chromadb
 ```
 
 **Common fixes:**
-- Rebuild images: `docker-compose up -d --build`
-- Clean restart: `docker-compose down && docker-compose up -d`
+- Rebuild images: `docker compose up -d --build`
+- Clean restart: `docker compose down && docker compose up -d`
 - Full cleanup: `./scripts/cleanup.sh && ./scripts/start.sh`
 
 ## Ollama Model Download Fails
@@ -82,10 +82,10 @@ If the model download is interrupted:
 
 ```bash
 # Remove partial download
-docker-compose exec ollama ollama rm qwen2.5:3b
+docker compose exec ollama ollama rm qwen2.5:3b
 
 # Re-download
-docker-compose exec ollama ollama pull qwen2.5:3b
+docker compose exec ollama ollama pull qwen2.5:3b
 ```
 
 ## Port Already in Use
@@ -96,7 +96,7 @@ If you see "port is already allocated" errors:
 # Find what's using the port (e.g., 5000)
 lsof -i :5000
 
-# Kill the process or change the port in docker-compose.yml
+# Kill the process or change the port in docker compose.yml
 ```
 
 ## ChromaDB Connection Errors
@@ -105,13 +105,13 @@ If the API can't connect to ChromaDB:
 
 ```bash
 # Check ChromaDB is running
-docker-compose ps chromadb
+docker compose ps chromadb
 
 # Check ChromaDB logs
-docker-compose logs chromadb
+docker compose logs chromadb
 
 # Restart ChromaDB
-docker-compose restart chromadb
+docker compose restart chromadb
 ```
 
 ## Web UI Not Loading
@@ -120,11 +120,11 @@ If http://localhost:8080 doesn't load:
 
 ```bash
 # Check web-manager container
-docker-compose ps web-manager
-docker-compose logs web-manager
+docker compose ps web-manager
+docker compose logs web-manager
 
 # Rebuild if needed
-docker-compose up -d --build web-manager
+docker compose up -d --build web-manager
 ```
 
 ## Reset Everything
@@ -146,6 +146,6 @@ To start fresh:
 
 If issues persist:
 
-1. Check logs: `docker-compose logs -f`
+1. Check logs: `docker compose logs -f`
 2. Verify health: `curl http://localhost:5000/health`
 3. Run tests: `./scripts/test.sh`

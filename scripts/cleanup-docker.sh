@@ -114,8 +114,8 @@ fi
 
 # Stop and remove containers (always done)
 log_info "Stopping containers..."
-docker-compose down 2>/dev/null || true
-# Also force stop any containers with our names (in case docker-compose is out of sync)
+docker compose down 2>/dev/null || true
+# Also force stop any containers with our names (in case docker compose is out of sync)
 docker stop ollama chromadb api web-manager 2>/dev/null || true
 docker rm -f ollama chromadb api web-manager 2>/dev/null || true
 log_success "Containers stopped and removed"

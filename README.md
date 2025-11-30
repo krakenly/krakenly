@@ -21,7 +21,7 @@ A fully local, privacy-focused AI assistant that runs entirely on your machine u
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Deployment Options](#deployment-options)
-  - [Docker Compose](#docker-compose)
+  - [Docker Compose](#docker compose)
   - [Kubernetes](#kubernetes)
   - [Prerequisites](#prerequisites)
 - [Usage](#usage)
@@ -158,7 +158,7 @@ Use this when you want to modify the code or contribute. Builds images locally f
 
 ```bash
 # Stop services (preserves data)
-docker-compose down
+docker compose down
 
 # Cleanup containers and images (preserves data)
 ./scripts/cleanup-docker.sh
@@ -350,10 +350,10 @@ curl -X POST http://localhost:5000/search/rag \
 ./scripts/install-k8s-prereqs.sh
 
 # Stop Docker Compose services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Cleanup Docker
 ./scripts/cleanup-docker.sh
@@ -372,7 +372,7 @@ docker-compose logs -f
 
 ```
 krakenly/
-├── docker-compose.yml      # Container orchestration
+├── docker compose.yml      # Container orchestration
 ├── docs/                   # Documentation
 │   ├── API.md              # API reference
 │   ├── BENCHMARKS.md       # Performance metrics

@@ -82,7 +82,7 @@ fi
 
 # Pull and start services
 log_info "Pulling and starting services from DockerHub..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 log_info "Waiting for services to become healthy..."
@@ -110,7 +110,7 @@ wait_for_health "krakenly Web UI" "http://localhost:8080/health" 90
 
 echo ""
 log_info "Container status:"
-docker-compose ps
+docker compose ps
 
 echo ""
 log_success "All services are running!"
@@ -127,9 +127,9 @@ echo "    -H 'Content-Type: application/json' \\"
 echo "    -d '{\"prompt\": \"Hello!\"}'"
 echo ""
 log_info "Useful commands:"
-echo "  - View logs:     docker-compose logs -f"
-echo "  - Stop services: docker-compose down"
-echo "  - Restart:       docker-compose restart"
+echo "  - View logs:     docker compose logs -f"
+echo "  - Stop services: docker compose down"
+echo "  - Restart:       docker compose restart"
 echo ""
 
 # Calculate and display duration

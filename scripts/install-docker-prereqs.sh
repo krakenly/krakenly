@@ -19,8 +19,10 @@ if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
     echo "This script will:"
     echo "  1. Check system requirements (RAM, CPU, disk space)"
     echo "  2. Install Docker if not present"
-    echo "  3. Install Docker Compose if not present"
+    echo "  3. Install Docker Compose plugin if not present"
     echo "  4. Add current user to docker group"
+    echo ""
+    echo "Supported platforms: Ubuntu/Debian (apt-based distributions)"
     echo ""
     echo "Note: You may need to log out and back in after installation"
     echo "for docker group permissions to take effect."
@@ -136,8 +138,8 @@ fi
 
 # 2. Install Docker Compose
 log_info "Checking Docker Compose installation..."
-if command_exists docker-compose; then
-    COMPOSE_VERSION=$(docker-compose --version | awk '{print $4}' | sed 's/,//' 2>/dev/null || docker-compose version --short 2>/dev/null || echo "installed")
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_VERSION=$(docker compose version --short 2>/dev/null || echo "installed")
     log_success "Docker Compose $COMPOSE_VERSION is already installed"
 else
     log_info "Installing Docker Compose..."
@@ -178,7 +180,12 @@ check_and_report() {
 ALL_OK=true
 
 check_and_report docker "Docker" || ALL_OK=false
-check_and_report docker-compose "Docker Compose" || ALL_OK=false
+if docker compose version >/dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC} Docker Compose is installed"
+else
+    echo -e "${RED}✗${NC} Docker Compose is NOT installed"
+    ALL_OK=false
+fi
 
 echo ""
 if [ "$ALL_OK" = true ]; then
@@ -186,9 +193,9 @@ if [ "$ALL_OK" = true ]; then
     echo ""
     log_info "Next steps:"
     echo "  1. If this is your first Docker installation, log out and back in"
-    echo "  2. Run: docker-compose up -d"
-    echo "  3. Check status: docker-compose ps"
-    echo "  4. View logs: docker-compose logs -f"
+    echo "  2. Run: docker compose up -d"
+    echo "  3. Check status: docker compose ps"
+    echo "  4. View logs: docker compose logs -f"
     echo ""
     log_info "Service endpoint (after startup):"
     echo "  - API Service: http://localhost:5000"

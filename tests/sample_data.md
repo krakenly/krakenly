@@ -108,10 +108,10 @@ Tested on AMD EPYC 9V74 (4 cores, CPU-only, 32GB RAM):
 ./scripts/start.sh
 
 # Stop services
-docker-compose down
+docker compose down
 
 # View logs
-docker-compose logs -f api
+docker compose logs -f api
 
 # Run tests
 ./scripts/test.sh

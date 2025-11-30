@@ -91,6 +91,7 @@ jobs:
           exit 1
 
       - name: Pull LLM model
+        timeout-minutes: 15
         run: |
           docker exec krakenly-ollama ollama pull qwen2.5:3b
 
@@ -194,6 +195,7 @@ jobs:
           sleep 5
 
       - name: Pull LLM model
+        timeout-minutes: 15
         run: |
           kubectl -n krakenly exec deploy/ollama -- ollama pull qwen2.5:3b
 

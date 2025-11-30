@@ -4,7 +4,7 @@ This document describes all configuration options for Krakenly.
 
 ## Environment Variables
 
-Environment variables can be set in `docker-compose.yml` under the `api` service:
+Environment variables can be set in `docker compose.yml` under the `api` service:
 
 ```yaml
 services:
@@ -72,7 +72,7 @@ These models convert text to vectors for semantic search (set via `EMBEDDING_MOD
 
 ### Change Language Model
 
-1. Edit `docker-compose.yml`:
+1. Edit `docker compose.yml`:
    ```yaml
    environment:
      - MODEL_NAME=phi3:mini
@@ -80,8 +80,8 @@ These models convert text to vectors for semantic search (set via `EMBEDDING_MOD
 
 2. Restart services:
    ```bash
-   docker-compose down
-   docker-compose up -d
+   docker compose down
+   docker compose up -d
    ```
 
 3. The new model will be downloaded automatically on first request.
@@ -99,12 +99,12 @@ curl -X POST http://localhost:5000/models/pull \
 Or via Ollama directly:
 
 ```bash
-docker-compose exec ollama ollama pull phi3:mini
+docker compose exec ollama ollama pull phi3:mini
 ```
 
 ### Change Embedding Model
 
-1. Edit `docker-compose.yml`:
+1. Edit `docker compose.yml`:
    ```yaml
    environment:
      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
@@ -112,8 +112,8 @@ docker-compose exec ollama ollama pull phi3:mini
 
 2. Rebuild the API service:
    ```bash
-   docker-compose down
-   docker-compose up -d --build api
+   docker compose down
+   docker compose up -d --build api
    ```
 
 > **Warning:** Changing the embedding model requires re-indexing all data, as vectors are not compatible between models.
@@ -148,7 +148,7 @@ environment:
 
 ### GPU Acceleration
 
-If you have an NVIDIA GPU, add to `docker-compose.yml`:
+If you have an NVIDIA GPU, add to `docker compose.yml`:
 
 ```yaml
 services:
@@ -166,7 +166,7 @@ services:
 
 ## Docker Volume Configuration
 
-Data is stored in Docker volumes defined in `docker-compose.yml`:
+Data is stored in Docker volumes defined in `docker compose.yml`:
 
 ```yaml
 volumes:
@@ -204,7 +204,7 @@ Default port configuration:
 | Ollama | 11434 | 11434 |
 | ChromaDB | 8000 | 8000 |
 
-To change external ports, modify `docker-compose.yml`:
+To change external ports, modify `docker compose.yml`:
 
 ```yaml
 services:
@@ -232,11 +232,11 @@ services:
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f api
-docker-compose logs -f ollama
+docker compose logs -f api
+docker compose logs -f ollama
 ```
 
 ### Log Levels
