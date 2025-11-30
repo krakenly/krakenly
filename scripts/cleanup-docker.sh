@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Change to project directory
@@ -93,11 +93,11 @@ echo ""
 # Confirmation for destructive operations
 if [[ "$DELETE_DATA" == true ]] || [[ "$DELETE_IMAGES" == true ]]; then
     if [[ "$DELETE_DATA" == true ]] && [[ "$DELETE_IMAGES" == true ]]; then
-        log_warn "Full cleanup requested - this will remove ALL data and images!"
+        log_warning "Full cleanup requested - this will remove ALL data and images!"
     elif [[ "$DELETE_DATA" == true ]]; then
-        log_warn "Data cleanup requested - this will remove your indexed data and models!"
+        log_warning "Data cleanup requested - this will remove your indexed data and models!"
     else
-        log_warn "Image cleanup requested - this will remove base Docker images!"
+        log_warning "Image cleanup requested - this will remove base Docker images!"
     fi
     echo ""
     if [[ "$SKIP_CONFIRM" != true ]]; then
@@ -130,7 +130,7 @@ log_success "Krakenly images removed"
 # Remove volumes only if --data or --all
 if [[ "$DELETE_DATA" == true ]]; then
     echo ""
-    log_warn "Deleting data volumes..."
+    log_warning "Deleting data volumes..."
     
     # Remove project-specific volumes
     docker volume rm -f krakenly-ollama 2>/dev/null || true
@@ -148,7 +148,7 @@ fi
 # Remove base images only if --images or --all
 if [[ "$DELETE_IMAGES" == true ]]; then
     echo ""
-    log_warn "Deleting base images..."
+    log_warning "Deleting base images..."
     
     # Remove Ollama and ChromaDB images
     docker rmi ollama/ollama:latest 2>/dev/null || true

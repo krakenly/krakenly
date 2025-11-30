@@ -56,9 +56,6 @@ This system uses **official images** for maximum reliability and minimal footpri
 ## Features
 
 - 🔒 **100% Local**: All services run on your machine - no data leaves your system
-- 🔐 **Complete Privacy**: Your data never leaves your machine—no cloud uploads, no third-party access
-- 💰 **Zero Ongoing Costs**: No API fees, no subscriptions, no usage limits—run it as much as you want
-- 🎛️ **Full Control**: Choose your models, customize behavior, and own your entire AI stack
 - 🏠 **Home Server Ready**: Perfect for NAS, Raspberry Pi, or any always-on machine
 - ⚡ **Optimized**: Official images, ONNX embeddings, efficient LLM inference
 - 🤖 **Local LLM**: Uses Ollama with quantized models (`qwen2.5:3b` by default)
@@ -374,13 +371,14 @@ docker-compose logs -f
 ## Project Structure
 
 ```
-ai-assistant/
+krakenly/
 ├── docker-compose.yml      # Container orchestration
 ├── docs/                   # Documentation
 │   ├── API.md              # API reference
 │   ├── BENCHMARKS.md       # Performance metrics
 │   ├── CONFIGURATION.md    # Configuration options
 │   ├── PREPROCESSING.md    # Document processing
+│   ├── SCRIPTS.md          # Scripts reference
 │   └── TROUBLESHOOTING.md  # Common issues
 ├── scripts/
 │   ├── install-docker-prereqs.sh # Install Docker & Docker Compose
