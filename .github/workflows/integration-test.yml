@@ -68,7 +68,9 @@ jobs:
           path: /tmp
 
       - name: Load Docker image
-        run: docker load -i /tmp/krakenly-image.tar
+        run: |
+          docker load -i /tmp/krakenly-image.tar
+          docker tag krakenly/krakenly:local krakenly/krakenly:latest
 
       - name: Start services with Docker Compose
         run: |
