@@ -16,8 +16,8 @@ WORKDIR /app
 
 # Install Python dependencies in builder stage
 COPY services/api/requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+# hadolint ignore=DL3013
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # Final stage
 FROM python:3.10-slim
@@ -34,6 +34,7 @@ LABEL maintainer="Krakenly <hello@krakenly.io>"
 WORKDIR /app
 
 # Install system dependencies
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     nginx \

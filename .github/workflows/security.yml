@@ -1,9 +1,19 @@
 name: Security Checks
 
 on:
-  pull_request:
   push:
     branches: [ main, feature/security ]
+  pull_request:
+    branches: [ main, feature/security ]
+  # Use pull_request_target for CodeQL to run with elevated permissions on forked PRs
+  pull_request_target:
+    branches: [ main ]
+
+# Required for CodeQL/secret scanning API access
+permissions:
+  contents: read
+  actions: read
+  security-events: write
 
 jobs:
   python-audit:
@@ -48,10 +58,16 @@ jobs:
 
   secret-scan:
     runs-on: ubuntu-latest
+    # Ensure this job runs with elevated permissions for fork PRs
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: GitHub Advanced Security - secret scanning
+        with:
+          persist-credentials: false
+      - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: python
