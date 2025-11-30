@@ -1,0 +1,155 @@
+{
+  "benchmark_version": "1.0",
+  "system": {
+    "timestamp": "2025-11-29T23:07:12.434438",
+    "platform": {
+      "system": "Linux",
+      "release": "6.14.0-1014-azure",
+      "version": "#14~24.04.1-Ubuntu SMP Fri Oct  3 20:52:11 UTC 2025",
+      "machine": "x86_64",
+      "processor": "x86_64"
+    },
+    "python_version": "3.12.3",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "cpu_cores": 8,
+    "memory_gb": 31.3
+  },
+  "docker": {
+    "ollama": {
+      "model": "qwen2.5:3b",
+      "model_loaded": true,
+      "running": true
+    },
+    "chromadb": {
+      "running": true
+    },
+    "embeddings": {
+      "model": "BAAI/bge-small-en-v1.5"
+    },
+    "documents_count": 0,
+    "model_details": {
+      "name": "qwen2.5:3b",
+      "size_gb": 1.8,
+      "parameter_size": "3.1B",
+      "quantization": "Q4_K_M"
+    }
+  },
+  "results": {
+    "trivial": {
+      "total_queries": 10,
+      "successful_queries": 10,
+      "failed_queries": 0,
+      "response_time_ms": {
+        "avg": 1678.3,
+        "min": 923.4,
+        "max": 1910.5,
+        "p50": 1787.8,
+        "p90": 1905.9,
+        "p95": 1908.2
+      },
+      "tokens_per_sec": {
+        "avg": 16.4,
+        "min": 15.2,
+        "max": 16.9,
+        "p50": 16.7,
+        "p90": 16.8,
+        "p95": 16.9
+      },
+      "tokens_generated": {
+        "avg": 27.7,
+        "total": 277
+      },
+      "context_chars": {
+        "avg": 0.0
+      },
+      "ollama_time_pct": 100.0
+    },
+    "simple": {
+      "total_queries": 10,
+      "successful_queries": 10,
+      "failed_queries": 0,
+      "response_time_ms": {
+        "avg": 5731.6,
+        "min": 2910.8,
+        "max": 7188.5,
+        "p50": 5874.6,
+        "p90": 7166.7,
+        "p95": 7177.6
+      },
+      "tokens_per_sec": {
+        "avg": 10.4,
+        "min": 8.6,
+        "max": 13.1,
+        "p50": 10.8,
+        "p90": 11.7,
+        "p95": 12.4
+      },
+      "tokens_generated": {
+        "avg": 58.8,
+        "total": 588
+      },
+      "context_chars": {
+        "avg": 417.1
+      },
+      "ollama_time_pct": 99.8
+    },
+    "medium": {
+      "total_queries": 10,
+      "successful_queries": 10,
+      "failed_queries": 0,
+      "response_time_ms": {
+        "avg": 9968.2,
+        "min": 6699.6,
+        "max": 12578.9,
+        "p50": 10191.6,
+        "p90": 12277.8,
+        "p95": 12428.4
+      },
+      "tokens_per_sec": {
+        "avg": 13.0,
+        "min": 10.2,
+        "max": 16.1,
+        "p50": 12.6,
+        "p90": 15.4,
+        "p95": 15.7
+      },
+      "tokens_generated": {
+        "avg": 126.0,
+        "total": 1260
+      },
+      "context_chars": {
+        "avg": 561.5
+      },
+      "ollama_time_pct": 99.9
+    },
+    "complex": {
+      "total_queries": 10,
+      "successful_queries": 10,
+      "failed_queries": 0,
+      "response_time_ms": {
+        "avg": 18736.9,
+        "min": 12996.2,
+        "max": 27254.5,
+        "p50": 17620.3,
+        "p90": 24588.4,
+        "p95": 25921.5
+      },
+      "tokens_per_sec": {
+        "avg": 11.2,
+        "min": 7.3,
+        "max": 15.4,
+        "p50": 11.4,
+        "p90": 14.5,
+        "p95": 15.0
+      },
+      "tokens_generated": {
+        "avg": 200.0,
+        "total": 2000
+      },
+      "context_chars": {
+        "avg": 1239.0
+      },
+      "ollama_time_pct": 99.9
+    }
+  }
+}

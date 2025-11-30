@@ -1,0 +1,7 @@
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+requests==2.31.0
+fastembed==0.3.6
+chromadb-client==1.0.0
+numpy<2.0
