@@ -33,7 +33,7 @@ Krakenly is a **Retrieval-Augmented Generation (RAG)** system that lets you chat
 
 ### Key difference from cloud-based AI
 
-Cloud AI services answer from their training data. Krakenly answers from **your data**. If the information isn't in your indexed files, it will tell you rather than making something up. Plus, your data never leaves your machine.
+Cloud AI services answer from their training data. Krakenly answers from **your data**. If the information isn't in your indexed data, it will tell you rather than making something up. Plus, your data never leaves your machine.
 
 ## Components
 

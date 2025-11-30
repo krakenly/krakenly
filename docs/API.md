@@ -169,7 +169,7 @@ GET /sources
 
 ### Delete Source
 
-Delete indexed data.
+Delete an indexed data source.
 
 ```http
 DELETE /sources/<id>
@@ -256,7 +256,7 @@ Content-Type: application/json
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | `query` | string | Yes | - | Question to ask |
-| `top_k` | integer | No | 3 | Number of context data |
+| `top_k` | integer | No | 3 | Number of context data items |
 | `max_tokens` | integer | No | 512 | Maximum response length |
 
 **Response:**

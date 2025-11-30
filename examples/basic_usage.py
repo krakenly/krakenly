@@ -78,7 +78,7 @@ def index_data():
         else:
             print(f"✗ Error indexing {doc['metadata']['source']}: {response.text}")
     
-    print(f"✓ Indexed sample data")
+    print(f"✓ Indexed {indexed} data items")
 
 def search_example():
     """Perform a simple search"""
