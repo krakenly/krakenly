@@ -4,7 +4,7 @@ This document describes all configuration options for Krakenly.
 
 ## Environment Variables
 
-Environment variables can be set in `docker compose.yml` under the `api` service:
+Environment variables can be set in `docker-compose.yml` under the `api` service:
 
 ```yaml
 services:
@@ -72,7 +72,7 @@ These models convert text to vectors for semantic search (set via `EMBEDDING_MOD
 
 ### Change Language Model
 
-1. Edit `docker compose.yml`:
+1. Edit `docker-compose.yml`:
    ```yaml
    environment:
      - MODEL_NAME=phi3:mini
@@ -104,7 +104,7 @@ docker compose exec ollama ollama pull phi3:mini
 
 ### Change Embedding Model
 
-1. Edit `docker compose.yml`:
+1. Edit `docker-compose.yml`:
    ```yaml
    environment:
      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
@@ -148,7 +148,7 @@ environment:
 
 ### GPU Acceleration
 
-If you have an NVIDIA GPU, add to `docker compose.yml`:
+If you have an NVIDIA GPU, add to `docker-compose.yml`:
 
 ```yaml
 services:
@@ -166,7 +166,7 @@ services:
 
 ## Docker Volume Configuration
 
-Data is stored in Docker volumes defined in `docker compose.yml`:
+Data is stored in Docker volumes defined in `docker-compose.yml`:
 
 ```yaml
 volumes:
@@ -204,7 +204,7 @@ Default port configuration:
 | Ollama | 11434 | 11434 |
 | ChromaDB | 8000 | 8000 |
 
-To change external ports, modify `docker compose.yml`:
+To change external ports, modify `docker-compose.yml`:
 
 ```yaml
 services:

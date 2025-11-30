@@ -40,7 +40,7 @@ docker info | grep Memory
 
 **Solutions:**
 - Close other applications to free memory
-- Use a smaller model: Set `MODEL_NAME=qwen2.5:0.5b` in `docker compose.yml`
+- Use a smaller model: Set `MODEL_NAME=qwen2.5:0.5b` in `docker-compose.yml`
 - Increase Docker's memory limit (Docker Desktop settings)
 
 ## Search Returns No Results
@@ -96,7 +96,7 @@ If you see "port is already allocated" errors:
 # Find what's using the port (e.g., 5000)
 lsof -i :5000
 
-# Kill the process or change the port in docker compose.yml
+# Kill the process or change the port in docker-compose.yml
 ```
 
 ## ChromaDB Connection Errors

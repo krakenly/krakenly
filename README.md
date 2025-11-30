@@ -379,7 +379,7 @@ docker compose logs -f
 
 ```
 krakenly/
-├── docker compose.yml      # Container orchestration
+├── docker-compose.yml      # Container orchestration
 ├── docs/                   # Documentation
 │   ├── API.md              # API reference
 │   ├── BENCHMARKS.md       # Performance metrics
