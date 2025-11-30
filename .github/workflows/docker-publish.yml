@@ -4,12 +4,17 @@ on:
   push:
     branches:
       - main
-      - feature/unified-docker
     tags:
       - 'v*'
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Optional tag for the image (e.g., beta, test)'
+        required: false
+        default: ''
 
 env:
   REGISTRY: docker.io
