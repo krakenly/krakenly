@@ -306,6 +306,7 @@ curl -X POST http://localhost:5000/search/rag \
 
 | Document | Description |
 |----------|-------------|
+| [Scripts Reference](docs/SCRIPTS.md) | All scripts with options and examples |
 | [API Reference](docs/API.md) | Complete REST API documentation |
 | [Configuration](docs/CONFIGURATION.md) | Environment variables and model options |
 | [Data Preprocessing](docs/PREPROCESSING.md) | How data is chunked for search |
