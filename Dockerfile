@@ -63,7 +63,8 @@ COPY supervisor.conf /etc/supervisor/conf.d/krakenly.conf
 # Create necessary directories and set permissions
 RUN mkdir -p /var/log/supervisor /var/run /data \
     && chown -R www-data:www-data /usr/share/nginx/html \
-    && chown -R www-data:www-data /data
+    && chown -R www-data:www-data /data \
+    && chown -R www-data:www-data /app
 
 # Environment variables with defaults
 ENV PYTHONUNBUFFERED=1 \
@@ -84,7 +85,7 @@ EXPOSE 80 5000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:5000/health && curl -f http://localhost:80/health || exit 1
+    CMD curl -f http://localhost:5000/health && curl -f http://localhost:80/health
 
 # Start supervisor (manages both nginx and gunicorn)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
