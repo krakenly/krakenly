@@ -1,0 +1,27 @@
+name: Publish Docker Image to GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g., latest, v1.0.0)'
+        required: false
+        default: 'latest'
+        type: string
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/krakenly:${{ github.event.inputs.tag }} .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/krakenly:${{ github.event.inputs.tag }}
