@@ -1,6 +1,9 @@
 name: Publish Docker Image to GHCR
 
 on:
+  push:
+    branches:
+      - deployment/ghcr
   workflow_dispatch:
     inputs:
       tag:
