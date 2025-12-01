@@ -87,6 +87,7 @@ graph TD
         subgraph Storage [Persistent Volumes]
             VolOllama[(ollama_data)]
             VolChroma[(chroma_data)]
+            VolKrakenly[(krakenly_data)]
         end
 
         UI -->|HTTP/JSON| API
@@ -95,6 +96,7 @@ graph TD
         
         Ollama --- VolOllama
         Chroma --- VolChroma
+        API --- VolKrakenly
     end
     
     style Docker_Compose fill:#f9f9f9,stroke:#333,stroke-width:2px
