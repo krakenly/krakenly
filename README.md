@@ -1,6 +1,7 @@
 # 🐙 Krakenly
 
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
+[![GitHub Container Registry](https://img.shields.io/badge/GitHub%20Container%20Registry-krakenly-blue?logo=github)](https://github.com/krakenly/krakenly/pkgs/container/krakenly)
 [![Release](https://img.shields.io/github/v/release/krakenly/krakenly?logo=github)](https://github.com/krakenly/krakenly/releases)
 
 [![CI](https://github.com/krakenly/krakenly/actions/workflows/ci.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/ci.yml)
@@ -143,7 +144,7 @@ See [Deployment Options](#deployment-options) for detailed instructions.
 
 ### Docker Compose
 
-#### Production (DockerHub Images)
+#### Production (Pre-built Images)
 
 ```bash
 ./scripts/start-docker.sh
@@ -151,10 +152,14 @@ See [Deployment Options](#deployment-options) for detailed instructions.
 
 This will:
 - Install Docker and Docker Compose (if needed)
-- Pull official images from DockerHub
+- Pull official images from DockerHub or GHCR
 - Start all services (Ollama, ChromaDB, Krakenly)
 - Wait for health checks to pass
 - Run end-to-end tests
+
+**Image registries available:**
+- DockerHub: `docker.io/krakenly/krakenly:latest`
+- GitHub Container Registry: `ghcr.io/krakenly/krakenly:latest`
 
 **Options:**
 ```bash
