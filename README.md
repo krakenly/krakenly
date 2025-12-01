@@ -1,14 +1,10 @@
 # 🐙 Krakenly
 
-[![GitHub](https://img.shields.io/badge/GitHub-krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
 [![Release](https://img.shields.io/github/v/release/krakenly/krakenly?logo=github)](https://github.com/krakenly/krakenly/releases)
+
 [![CI](https://github.com/krakenly/krakenly/actions/workflows/ci.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/ci.yml)
 [![Integration Tests](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml/badge.svg)](https://github.com/krakenly/krakenly/actions/workflows/integration-test.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/krakenly/krakenly/pulls)
-[![Last Commit](https://img.shields.io/github/last-commit/krakenly/krakenly)](https://github.com/krakenly/krakenly/commits)
 
 **Your data. Your AI. Your machine.**
 
@@ -70,28 +66,41 @@ This system uses **official images** for maximum reliability and minimal footpri
 - 📚 **RAG Support**: Context-aware AI responses using your indexed data
 - 🧠 **Smart Preprocessing**: Enhanced data chunking with entity extraction, relationships, and Q&A formatting
 - 🌐 **Web Interface**: Browser-based UI for file uploads, search, and AI chat
-- 🐳 **Containerized**: All services run as Docker containers
+- 🐳 **Docker Compose**: Simplified local deployment with pre-built images
+- ☸️ **Kubernetes**: Scalable deployment for production clusters
 - 💾 **Persistent Storage**: Your indexed data and models persist across restarts
 
 ## Architecture
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                        Docker Compose                          │
-│                                                                │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────┐  ┌──────┐  │
-│  │    Ollama    │  │   ChromaDB   │  │    API     │  │ Web  │  │
-│  │   (official) │  │   (official) │  │  Service   │  │ UI   │  │
-│  │              │  │              │  │            │  │      │  │
-│  │  LLM Engine  │  │ Vector Store │  │ Fastembed  │  │nginx │  │
-│  │ qwen2.5:3b   │  │              │  │  REST API  │  │      │  │
-│  └──────────────┘  └──────────────┘  └────────────┘  └──────┘  │
-│         │                 │                │              │    │
-│  ┌──────┴─────────────────┴────────────────┴──────────────┴─┐  │
-│  │                     Docker Volumes                       │  │
-│  │              (ollama_data & chroma_data)                 │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Docker_Compose [Docker Compose]
+        direction TB
+        
+        subgraph Services
+            UI[Web UI<br/>Nginx + JS]
+            API[API Service<br/>Flask + Fastembed]
+            Ollama[Ollama<br/>LLM Engine]
+            Chroma[ChromaDB<br/>Vector Store]
+        end
+        
+        subgraph Storage [Persistent Volumes]
+            VolOllama[(ollama_data)]
+            VolChroma[(chroma_data)]
+            VolKrakenly[(krakenly_data)]
+        end
+
+        UI -->|HTTP/JSON| API
+        API -->|Generate| Ollama
+        API -->|Query/Index| Chroma
+        
+        Ollama --- VolOllama
+        Chroma --- VolChroma
+        API --- VolKrakenly
+    end
+    
+    style Docker_Compose fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style Storage fill:#eee,stroke:#333,stroke-dasharray: 5 5
 ```
 
 ## Quick Start
