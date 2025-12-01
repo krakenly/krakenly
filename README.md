@@ -1,6 +1,5 @@
 # 🐙 Krakenly
 
-[![GitHub](https://img.shields.io/badge/GitHub-krakenly-blue?logo=github)](https://github.com/krakenly/krakenly)
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-krakenly-blue?logo=docker)](https://hub.docker.com/r/krakenly/krakenly)
 [![Release](https://img.shields.io/github/v/release/krakenly/krakenly?logo=github)](https://github.com/krakenly/krakenly/releases)
 
@@ -75,7 +74,7 @@ This system uses **official images** for maximum reliability and minimal footpri
 
 ```mermaid
 graph TD
-    subgraph Docker_Compose [Docker Compose Environment]
+    subgraph Docker_Compose [Docker Compose]
         direction TB
         
         subgraph Services
