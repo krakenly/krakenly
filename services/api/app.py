@@ -9,7 +9,8 @@ import uuid
 import json
 import time
 from datetime import datetime
-from flask import Flask, request, jsonify
+from typing import Union, Tuple
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 
 # Import configuration
@@ -45,7 +46,7 @@ CORS(app, expose_headers=['X-Activity-ID'])
 create_request_logger(app)
 
 
-def init_services():
+def init_services() -> None:
     """Initialize all services: embeddings, ChromaDB, Ollama, and metadata"""
     init_embedder()
     init_chromadb()
@@ -63,7 +64,7 @@ except Exception as e:
 # ============== Health & Status ==============
 
 @app.route('/health', methods=['GET'])
-def health():
+def health() -> Response:
     """Health check endpoint"""
     ollama_status = check_ollama_health()
     chromadb_status = check_chromadb_health()
@@ -83,7 +84,7 @@ def health():
 # ============== Document Indexing ==============
 
 @app.route('/index', methods=['POST'])
-def index_document():
+def index_document() -> Union[Response, Tuple[Response, int]]:
     """Index a document with chunking and embedding"""
     try:
         data = request.get_json()
@@ -131,7 +132,7 @@ def index_document():
 
 
 @app.route('/index/batch', methods=['POST'])
-def index_batch():
+def index_batch() -> Union[Response, Tuple[Response, int]]:
     """Index multiple documents"""
     try:
         data = request.get_json()
@@ -191,7 +192,7 @@ def index_batch():
 
 
 @app.route('/index/upload', methods=['POST'])
-def upload_file():
+def upload_file() -> Union[Response, Tuple[Response, int]]:
     """Upload and index a file with comprehensive preprocessing"""
     try:
         if 'file' not in request.files:
@@ -256,7 +257,7 @@ def upload_file():
 
 
 @app.route('/sources', methods=['GET'])
-def get_sources():
+def get_sources() -> Union[Response, Tuple[Response, int]]:
     """List all indexed sources with metadata"""
     try:
         sources = list_sources()
@@ -272,7 +273,7 @@ def get_sources():
 
 
 @app.route('/sources/<path:source_id>', methods=['DELETE'])
-def delete_source(source_id):
+def delete_source(source_id: str) -> Union[Response, Tuple[Response, int]]:
     """Delete all chunks from a specific source"""
     try:
         collection = get_collection()
@@ -300,7 +301,7 @@ def delete_source(source_id):
 
 
 @app.route('/stats', methods=['GET'])
-def get_stats():
+def get_stats() -> Response:
     """Get indexing statistics"""
     collection = get_collection()
     sources = list_sources()
@@ -316,7 +317,7 @@ def get_stats():
 # ============== Search ==============
 
 @app.route('/search', methods=['POST'])
-def search():
+def search() -> Union[Response, Tuple[Response, int]]:
     """Semantic search across indexed documents"""
     try:
         data = request.get_json()
@@ -356,7 +357,7 @@ def search():
 
 
 @app.route('/search/rag', methods=['POST'])
-def search_with_rag():
+def search_with_rag() -> Union[Response, Tuple[Response, int]]:
     """RAG: Search + AI generation"""
     try:
         timings = {}
@@ -450,7 +451,7 @@ def search_with_rag():
 
 
 @app.route('/list', methods=['GET'])
-def list_documents():
+def list_documents() -> Union[Response, Tuple[Response, int]]:
     """List indexed documents"""
     try:
         limit = int(request.args.get('limit', 50))
@@ -480,7 +481,7 @@ def list_documents():
 # ============== AI Generation ==============
 
 @app.route('/generate', methods=['POST'])
-def generate():
+def generate() -> Union[Response, Tuple[Response, int]]:
     """Generate text using Ollama"""
     try:
         data = request.get_json()
@@ -509,7 +510,7 @@ def generate():
 # ============== Model Management ==============
 
 @app.route('/models/pull', methods=['POST'])
-def pull_model_endpoint():
+def pull_model_endpoint() -> Union[Response, Tuple[Response, int]]:
     """Pull a model into Ollama"""
     try:
         data = request.get_json()
@@ -523,7 +524,7 @@ def pull_model_endpoint():
 
 
 @app.route('/models', methods=['GET'])
-def list_models_endpoint():
+def list_models_endpoint() -> Union[Response, Tuple[Response, int]]:
     """List available models in Ollama"""
     try:
         result = list_models()
