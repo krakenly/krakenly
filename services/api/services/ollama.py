@@ -2,6 +2,7 @@
 Ollama service for Krakenly API
 Handles interaction with Ollama LLM service
 """
+import json
 import time
 import requests
 from config import (
@@ -10,7 +11,8 @@ from config import (
     OLLAMA_TIMEOUT,
     OLLAMA_PULL_TIMEOUT,
     WARMUP_MAX_RETRIES,
-    WARMUP_RETRY_DELAY
+    WARMUP_RETRY_DELAY,
+    MAX_CONTEXT_CHARS
 )
 
 
@@ -266,3 +268,98 @@ def check_health():
         'model_loaded': False,
         'model': MODEL_NAME
     }
+
+
+def generate_with_rag_stream(prompt, context='', max_tokens=512, temperature=0.7):
+    """
+    Generator that yields SSE-formatted chunks from Ollama streaming API.
+    
+    Args:
+        prompt: The user query
+        context: Retrieved context from search
+        max_tokens: Maximum tokens to generate
+        temperature: Sampling temperature
+        
+    Yields:
+        str: SSE-formatted data lines ("data: {...}\\n\\n")
+        
+    Returns:
+        dict: Final stats when stream completes (full_response, eval_count, etc.)
+    """
+    # Truncate context if too large
+    if context and len(context) > MAX_CONTEXT_CHARS:
+        context = context[:MAX_CONTEXT_CHARS] + "\n[...truncated for performance...]"
+    
+    # Build prompt
+    if context:
+        full_prompt = f"Based on the following information:\n\n{context}\n\nPlease answer: {prompt}"
+    else:
+        full_prompt = prompt
+    
+    try:
+        response = requests.post(
+            f"{OLLAMA_HOST}/api/generate",
+            json={
+                "model": MODEL_NAME,
+                "prompt": full_prompt,
+                "stream": True,
+                "options": {
+                    "num_predict": max_tokens,
+                    "temperature": temperature
+                }
+            },
+            stream=True,
+            timeout=OLLAMA_TIMEOUT
+        )
+        
+        if response.status_code != 200:
+            yield f'data: {json.dumps({"type": "error", "message": f"Ollama error: {response.status_code}", "code": "ollama_error"})}\n\n'
+            return
+        
+        full_response = ""
+        token_count = 0
+        final_stats = None
+        
+        for line in response.iter_lines():
+            if line:
+                try:
+                    chunk = json.loads(line.decode('utf-8'))
+                    token = chunk.get('response', '')
+                    done = chunk.get('done', False)
+                    
+                    if token:
+                        full_response += token
+                        token_count += 1
+                        # Yield token event
+                        yield f'data: {json.dumps({"type": "token", "content": token})}\n\n'
+                    
+                    if done:
+                        # Store final stats
+                        final_stats = {
+                            'full_response': full_response,
+                            'eval_count': chunk.get('eval_count', token_count),
+                            'eval_duration': chunk.get('eval_duration', 0),
+                            'total_duration': chunk.get('total_duration', 0)
+                        }
+                        
+                except json.JSONDecodeError:
+                    continue
+        
+        # Return final stats
+        if final_stats:
+            yield final_stats
+        else:
+            yield {
+                'full_response': full_response,
+                'eval_count': token_count,
+                'eval_duration': 0,
+                'total_duration': 0
+            }
+                    
+    except requests.exceptions.ConnectionError:
+        yield f'data: {json.dumps({"type": "error", "message": "Cannot connect to Ollama", "code": "ollama_connection"})}\n\n'
+    except requests.exceptions.Timeout:
+        yield f'data: {json.dumps({"type": "error", "message": "Ollama request timed out", "code": "timeout"})}\n\n'
+    except Exception as e:
+        yield f'data: {json.dumps({"type": "error", "message": str(e), "code": "unknown"})}\n\n'
+

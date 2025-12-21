@@ -65,6 +65,7 @@ This system uses **official images** for maximum reliability and minimal footpri
 - 🤖 **Local LLM**: Uses Ollama with quantized models (`qwen2.5:3b` by default)
 - 🔍 **Semantic Search**: Find relevant data using vector similarity
 - 📚 **RAG Support**: Context-aware AI responses using your indexed data
+- ⚡ **Streaming Responses**: Real-time token-by-token LLM output for immediate feedback
 - 🧠 **Smart Preprocessing**: Enhanced data chunking with entity extraction, relationships, and Q&A formatting
 - 🌐 **Web Interface**: Browser-based UI for file uploads, search, and AI chat
 - 🐳 **Docker Compose**: Simplified local deployment with pre-built images

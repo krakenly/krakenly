@@ -591,3 +591,33 @@ header h1 {
         display: none;
     }
 }
+
+/* Streaming Animation */
+.streaming {
+    position: relative;
+}
+
+.streaming-cursor {
+    display: inline-block;
+    animation: blink 1s step-end infinite;
+    color: var(--primary);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.message-content.streaming {
+    min-height: 24px;
+}
+
+.message-content .error,
+.ai-content .error {
+    color: var(--danger);
+}
+
+.ai-content.streaming {
+    white-space: pre-wrap;
+    font-family: inherit;
+}
