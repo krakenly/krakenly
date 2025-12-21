@@ -4,19 +4,20 @@ Handles tracking of indexed document sources
 """
 import os
 import json
+from typing import Dict, Any, List, Optional
 from config import INDEX_METADATA_FILE
 
 # Global index metadata
-_index_metadata = {}
+_index_metadata: Dict[str, Any] = {}
 
 
-def get_metadata():
+def get_metadata() -> Dict[str, Any]:
     """Get the current index metadata"""
     global _index_metadata
     return _index_metadata
 
 
-def load_metadata():
+def load_metadata() -> Dict[str, Any]:
     """
     Load index metadata from file.
     
@@ -34,7 +35,7 @@ def load_metadata():
     return _index_metadata
 
 
-def save_metadata():
+def save_metadata() -> None:
     """Save index metadata to file"""
     global _index_metadata
     try:
@@ -45,7 +46,7 @@ def save_metadata():
         print(f"Warning: Could not save index metadata: {e}")
 
 
-def add_source(source_id, chunks, size_bytes, metadata=None):
+def add_source(source_id: str, chunks: int, size_bytes: int, metadata: Optional[Dict[str, Any]] = None) -> None:
     """
     Add or update a source in the metadata.
     
@@ -68,7 +69,7 @@ def add_source(source_id, chunks, size_bytes, metadata=None):
     save_metadata()
 
 
-def remove_source(source_id):
+def remove_source(source_id: str) -> bool:
     """
     Remove a source from the metadata.
     
@@ -86,7 +87,7 @@ def remove_source(source_id):
     return False
 
 
-def list_sources():
+def list_sources() -> List[Dict[str, Any]]:
     """
     Get all sources sorted by indexed_at descending.
     

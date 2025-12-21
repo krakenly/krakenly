@@ -2,14 +2,15 @@
 Embedding service for Krakenly API
 Handles text embedding using fastembed
 """
-from fastembed import TextEmbedding
+from typing import List, Any, Optional
+from fastembed import TextEmbedding # type: ignore
 from config import EMBEDDING_MODEL
 
 # Global embedder instance
-_embedder = None
+_embedder: Optional[Any] = None
 
 
-def get_embedder():
+def get_embedder() -> Any:
     """Get or initialize the embedder singleton"""
     global _embedder
     if _embedder is None:
@@ -17,7 +18,7 @@ def get_embedder():
     return _embedder
 
 
-def init_embedder():
+def init_embedder() -> Any:
     """Initialize the embedding model"""
     global _embedder
     print(f"Loading embedding model: {EMBEDDING_MODEL}")
@@ -26,7 +27,7 @@ def init_embedder():
     return _embedder
 
 
-def encode_texts(texts):
+def encode_texts(texts: List[str]) -> List[List[float]]:
     """
     Generate embeddings for a list of texts using fastembed.
     

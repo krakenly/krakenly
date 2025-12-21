@@ -5,12 +5,13 @@ Provides request/response logging middleware and logger setup
 import json
 import time
 import logging
+from typing import Any, Dict, Optional
 
 # Configure module logger
 logger = logging.getLogger('api')
 
 
-def setup_logging():
+def setup_logging() -> logging.Logger:
     """
     Configure logging for the application.
     Sets up format and level for the root logger.
@@ -23,12 +24,12 @@ def setup_logging():
     return logger
 
 
-def get_logger():
+def get_logger() -> logging.Logger:
     """Get the API logger instance"""
     return logger
 
 
-def create_request_logger(app):
+def create_request_logger(app: Any) -> None:
     """
     Create request/response logging middleware for Flask app.
     
@@ -38,11 +39,11 @@ def create_request_logger(app):
     Args:
         app: Flask application instance
     """
-    from flask import request, g
+    from flask import request, g # type: ignore
     import uuid
     
     @app.before_request
-    def before_request():
+    def before_request() -> None:
         """Log incoming request and start timer"""
         g.start_time = time.time()
         
@@ -54,7 +55,7 @@ def create_request_logger(app):
             return
         
         # Log request details
-        log_data = {
+        log_data: Dict[str, Any] = {
             'activity_id': g.activity_id,
             'method': request.method,
             'path': request.path,
@@ -66,7 +67,7 @@ def create_request_logger(app):
             try:
                 body = request.get_json(silent=True) or {}
                 # Truncate large fields for logging
-                log_body = {}
+                log_body: Dict[str, Any] = {}
                 for k, v in body.items():
                     if isinstance(v, str) and len(v) > 200:
                         log_body[k] = v[:200] + f'... ({len(v)} chars)'
@@ -79,7 +80,7 @@ def create_request_logger(app):
         logger.info(f"REQUEST: {json.dumps(log_data)}")
 
     @app.after_request
-    def after_request(response):
+    def after_request(response: Any) -> Any:
         """Log response and timing"""
         # Add activity ID to response headers
         activity_id = g.get('activity_id')
@@ -92,7 +93,7 @@ def create_request_logger(app):
         
         duration = time.time() - g.get('start_time', time.time())
         
-        log_data = {
+        log_data: Dict[str, Any] = {
             'activity_id': activity_id,
             'method': request.method,
             'path': request.path,
@@ -104,7 +105,7 @@ def create_request_logger(app):
         if response.is_json:
             try:
                 body = response.get_json(silent=True) or {}
-                log_body = {}
+                log_body: Dict[str, Any] = {}
                 for k, v in body.items():
                     if isinstance(v, str) and len(v) > 300:
                         log_body[k] = v[:300] + f'... ({len(v)} chars)'

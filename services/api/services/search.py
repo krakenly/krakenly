@@ -2,9 +2,10 @@
 Search service for Krakenly API
 Handles semantic search and query complexity analysis
 """
+from typing import Tuple
 
 
-def determine_query_complexity(query):
+def determine_query_complexity(query: str) -> Tuple[int, int]:
     """
     Auto-determine optimal top_k and max_tokens based on query complexity.
     
@@ -61,7 +62,7 @@ def determine_query_complexity(query):
         return (3, 96)
 
 
-def get_complexity_description(top_k, max_tokens):
+def get_complexity_description(top_k: int, max_tokens: int) -> str:
     """
     Get a human-readable description of the complexity settings.
     

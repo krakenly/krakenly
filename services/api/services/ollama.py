@@ -4,6 +4,7 @@ Handles interaction with Ollama LLM service
 """
 import time
 import requests
+from typing import Dict, List, Any, Optional, Tuple, Union
 from config import (
     OLLAMA_HOST, 
     MODEL_NAME, 
@@ -14,7 +15,7 @@ from config import (
 )
 
 
-def warmup_ollama_model():
+def warmup_ollama_model() -> bool:
     """
     Warm up the Ollama model by sending a test request to load it into memory.
     
@@ -79,7 +80,7 @@ def warmup_ollama_model():
     return False
 
 
-def generate_text(prompt, context='', max_tokens=512, temperature=0.7):
+def generate_text(prompt: str, context: str = '', max_tokens: int = 512, temperature: float = 0.7) -> Dict[str, Any]:
     """
     Generate text using Ollama.
     
@@ -120,7 +121,7 @@ def generate_text(prompt, context='', max_tokens=512, temperature=0.7):
     }
 
 
-def generate_with_rag(prompt, context='', max_tokens=512, temperature=0.7):
+def generate_with_rag(prompt: str, context: str = '', max_tokens: int = 512, temperature: float = 0.7) -> Tuple[str, Optional[Dict[str, Any]]]:
     """
     Generate text with RAG context.
     Returns raw response data including timing info.
@@ -167,7 +168,7 @@ def generate_with_rag(prompt, context='', max_tokens=512, temperature=0.7):
         return f"Error: {response.status_code}", None
 
 
-def chat_with_history(messages, max_tokens=512, temperature=0.7):
+def chat_with_history(messages: List[Dict[str, str]], max_tokens: int = 512, temperature: float = 0.7) -> Dict[str, str]:
     """
     Chat with message history using Ollama chat endpoint.
     
@@ -203,7 +204,7 @@ def chat_with_history(messages, max_tokens=512, temperature=0.7):
     }
 
 
-def pull_model(model_name=None):
+def pull_model(model_name: Optional[str] = None) -> Dict[str, Any]:
     """
     Pull a model into Ollama.
     
@@ -228,7 +229,7 @@ def pull_model(model_name=None):
     }
 
 
-def list_models():
+def list_models() -> Dict[str, Any]:
     """
     List available models in Ollama.
     
@@ -241,7 +242,7 @@ def list_models():
     raise Exception("Could not fetch models")
 
 
-def check_health():
+def check_health() -> Dict[str, Any]:
     """
     Check Ollama health and model availability.
     
