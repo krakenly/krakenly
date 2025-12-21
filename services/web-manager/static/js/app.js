@@ -3,6 +3,9 @@ const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:5000' 
     : `http://${window.location.hostname}:5000`;
 
+// Feature flags
+const STREAMING_ENABLED = true;
+
 // Generate a new activity ID (UUID v4)
 function generateActivityId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -10,6 +13,32 @@ function generateActivityId() {
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
     });
+}
+
+// ============== SSE Helpers ==============
+
+function parseSSEEvents(text) {
+    /**
+     * Parse SSE text into array of event objects.
+     * Handles multiple events in a single chunk.
+     */
+    const events = [];
+    const lines = text.split('\n');
+    
+    for (const line of lines) {
+        if (line.startsWith('data: ')) {
+            try {
+                const jsonStr = line.substring(6);
+                if (jsonStr.trim()) {
+                    events.push(JSON.parse(jsonStr));
+                }
+            } catch (e) {
+                console.warn('Failed to parse SSE event:', line, e);
+            }
+        }
+    }
+    
+    return events;
 }
 
 // State
@@ -283,19 +312,108 @@ async function performSearch() {
     const resultsDiv = document.getElementById('search-results');
     
     resultsCard.style.display = 'block';
+    
+    const activityId = generateActivityId();
+    
+    if (STREAMING_ENABLED) {
+        await performSearchStream(query, resultsDiv, activityId);
+    } else {
+        await performSearchNonStream(query, resultsDiv, activityId);
+    }
+}
+
+async function performSearchStream(query, resultsDiv, activityId) {
+    // Show streaming placeholder
+    resultsDiv.innerHTML = `
+        <div class="rag-response">
+            <h3>🤖 AI Response</h3>
+            <div class="ai-content streaming" id="search-stream-content">
+                <span class="streaming-cursor">▌</span>
+            </div>
+        </div>
+    `;
+    
+    const contentDiv = document.getElementById('search-stream-content');
+    let fullResponse = '';
+    let timings = null;
+    
+    try {
+        const response = await fetch(`${API_URL}/search/rag/stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Activity-ID': activityId,
+                'Accept': 'text/event-stream'
+            },
+            body: JSON.stringify({ query })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        contentDiv.innerHTML = '';
+        
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) break;
+            
+            const text = decoder.decode(value, { stream: true });
+            const events = parseSSEEvents(text);
+            
+            for (const event of events) {
+                switch (event.type) {
+                    case 'start':
+                        // Could show sources indicator here
+                        break;
+                        
+                    case 'token':
+                        fullResponse += event.content;
+                        contentDiv.textContent = fullResponse;
+                        break;
+                        
+                    case 'done':
+                        timings = event.timings;
+                        break;
+                        
+                    case 'error':
+                        contentDiv.innerHTML = `<span class="error">Error: ${escapeHtml(event.message)}</span>`;
+                        return;
+                }
+            }
+        }
+        
+        // Apply final formatting
+        const queryTime = timings ? `${(timings.total_ms / 1000).toFixed(1)}s` : '';
+        
+        resultsDiv.innerHTML = `
+            <div class="rag-response">
+                <h3>🤖 AI Response</h3>
+                <div class="ai-content">${formatAIResponse(fullResponse)}</div>
+                ${queryTime ? `<p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 12px;">Query time: ${queryTime}</p>` : ''}
+            </div>
+        `;
+        
+    } catch (error) {
+        resultsDiv.innerHTML = `<p class="empty-state">Error: ${escapeHtml(error.message)}</p>`;
+    }
+}
+
+async function performSearchNonStream(query, resultsDiv, activityId) {
     resultsDiv.innerHTML = '<p>Generating AI response...</p>';
     
     try {
-        // Let API auto-determine optimal settings based on query complexity
-        const requestBody = { query };
-        const activityId = generateActivityId();
         const response = await fetch(`${API_URL}/search/rag`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'X-Activity-ID': activityId
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({ query })
         });
         
         const data = await response.json();
@@ -352,18 +470,110 @@ async function sendMessage() {
     input.value = '';
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     
-    // Add loading indicator
+    // Create assistant message container
+    const messageId = 'msg-' + Date.now();
     messagesDiv.innerHTML += `
-        <div class="message assistant" id="loading-message">
-            <div class="message-content">Thinking...</div>
+        <div class="message assistant" id="${messageId}">
+            <div class="message-content streaming">
+                <span class="streaming-cursor">▌</span>
+            </div>
         </div>
     `;
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     
+    const messageDiv = document.getElementById(messageId);
+    const contentDiv = messageDiv.querySelector('.message-content');
+    
+    const activityId = generateActivityId();
+    
+    if (STREAMING_ENABLED) {
+        await sendMessageStream(message, contentDiv, activityId, messagesDiv);
+    } else {
+        await sendMessageNonStream(message, contentDiv, activityId);
+    }
+    
+    // Add to history
+    const finalContent = contentDiv.textContent || contentDiv.innerText;
+    chatHistory.push({ role: 'assistant', content: finalContent });
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+async function sendMessageStream(message, contentDiv, activityId, messagesDiv) {
+    let fullResponse = '';
+    
     try {
-        const activityId = generateActivityId();
+        const response = await fetch(`${API_URL}/search/rag/stream`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Activity-ID': activityId,
+                'Accept': 'text/event-stream'
+            },
+            body: JSON.stringify({ query: message })
+        });
         
-        // Use RAG endpoint to get context-aware response
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        
+        // Remove cursor, prepare for streaming content
+        contentDiv.innerHTML = '';
+        contentDiv.classList.add('streaming');
+        
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) break;
+            
+            const text = decoder.decode(value, { stream: true });
+            const events = parseSSEEvents(text);
+            
+            for (const event of events) {
+                switch (event.type) {
+                    case 'start':
+                        console.log('Stream started, sources:', event.sources);
+                        break;
+                        
+                    case 'token':
+                        fullResponse += event.content;
+                        contentDiv.textContent = fullResponse;
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        break;
+                        
+                    case 'done':
+                        contentDiv.classList.remove('streaming');
+                        contentDiv.innerHTML = formatAIResponse(fullResponse);
+                        console.log('Stream complete, timings:', event.timings);
+                        break;
+                        
+                    case 'error':
+                        contentDiv.classList.remove('streaming');
+                        contentDiv.innerHTML = `<span class="error">Error: ${escapeHtml(event.message)}</span>`;
+                        console.error('Stream error:', event);
+                        return;
+                }
+            }
+        }
+        
+        // Ensure formatting is applied if we missed done event
+        if (contentDiv.classList.contains('streaming')) {
+            contentDiv.classList.remove('streaming');
+            contentDiv.innerHTML = formatAIResponse(fullResponse);
+        }
+        
+    } catch (error) {
+        contentDiv.classList.remove('streaming');
+        contentDiv.innerHTML = `<span class="error">Error: ${escapeHtml(error.message)}</span>`;
+        console.error('Fetch error:', error);
+    }
+}
+
+async function sendMessageNonStream(message, contentDiv, activityId) {
+    try {
         const response = await fetch(`${API_URL}/search/rag`, {
             method: 'POST',
             headers: { 
@@ -376,27 +586,13 @@ async function sendMessage() {
         const data = await response.json();
         const assistantMessage = data.response || data.error || 'No response';
         
-        // Remove loading and add real response with formatted markdown
-        document.getElementById('loading-message').remove();
-        messagesDiv.innerHTML += `
-            <div class="message assistant">
-                <div class="message-content">${formatAIResponse(assistantMessage)}</div>
-            </div>
-        `;
-        
-        // Add to history (for context in future messages)
-        chatHistory.push({ role: 'assistant', content: assistantMessage });
+        contentDiv.classList.remove('streaming');
+        contentDiv.innerHTML = formatAIResponse(assistantMessage);
         
     } catch (error) {
-        document.getElementById('loading-message').remove();
-        messagesDiv.innerHTML += `
-            <div class="message assistant">
-                <div class="message-content">Error: ${escapeHtml(error.message)}</div>
-            </div>
-        `;
+        contentDiv.classList.remove('streaming');
+        contentDiv.innerHTML = `<span class="error">Error: ${escapeHtml(error.message)}</span>`;
     }
-    
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 // ============== Utilities ==============
