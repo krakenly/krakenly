@@ -1,71 +1,65 @@
 """
 ChromaDB service for Krakenly API
-Handles connection to ChromaDB vector database
+Handles vector database operations
 """
-from typing import Dict, Tuple, Any, Optional
-from urllib.parse import urlparse
-import chromadb # type: ignore
+from typing import Dict, Any, Optional, TYPE_CHECKING
 from config import CHROMA_HOST, HEALTH_CHECK_TIMEOUT
 import requests
 
+if TYPE_CHECKING:
+    import chromadb
+
 # Global ChromaDB client and collection
-_chroma_client: Optional[Any] = None
-_collection: Optional[Any] = None
+_chroma_client: Optional["chromadb.ClientAPI"] = None
+_collection: Optional["chromadb.Collection"] = None
 
 
-def get_client() -> Any:
-    """Get the ChromaDB client singleton"""
+def get_client() -> Optional["chromadb.ClientAPI"]:
+    """
+    Get or create the ChromaDB client.
+    
+    Returns:
+        The ChromaDB client instance
+    """
     global _chroma_client
     if _chroma_client is None:
-        init_chromadb()
+        try:
+            import chromadb
+            _chroma_client = chromadb.HttpClient(host=CHROMA_HOST.split(':')[0], port=8000)
+        except Exception as e:
+            print(f"Error connecting to ChromaDB: {e}")
+            _chroma_client = None
     return _chroma_client
 
 
-def get_collection() -> Any:
-    """Get the documents collection singleton"""
+def get_collection() -> Optional["chromadb.Collection"]:
+    """
+    Get or create the document collection.
+    
+    Returns:
+        The ChromaDB collection
+    """
     global _collection
-    if _collection is None:
-        init_chromadb()
+    client = get_client()
+    if _collection is None and client:
+        try:
+            _collection = client.get_or_create_collection(name="documents")
+        except Exception as e:
+            print(f"Error getting collection: {e}")
     return _collection
 
 
-def init_chromadb() -> Tuple[Any, Any]:
+def check_health() -> Dict[str, Any]:
     """
-    Initialize ChromaDB client and collection.
+    Check if ChromaDB is responsive.
     
     Returns:
-        tuple: (client, collection)
-    """
-    global _chroma_client, _collection
-    
-    print(f"Connecting to ChromaDB at: {CHROMA_HOST}")
-    
-    # Parse host and port from CHROMA_HOST (e.g., "http://chromadb:8000")
-    parsed = urlparse(CHROMA_HOST)
-    chroma_host: str = parsed.hostname or 'chromadb'
-    chroma_port: int = parsed.port or 8000
-    
-    _chroma_client = chromadb.HttpClient(host=chroma_host, port=chroma_port)
-    
-    _collection = _chroma_client.get_or_create_collection(
-        name="documents",
-        metadata={"description": "Document embeddings for Krakenly"}
-    )
-    
-    print(f"Connected to ChromaDB, collection has {_collection.count()} documents")
-    
-    return _chroma_client, _collection
-
-
-def check_health() -> Dict[str, bool]:
-    """
-    Check ChromaDB health status.
-    
-    Returns:
-        dict: Health status with 'running' field
+        dict: Health status
     """
     try:
-        resp = requests.get(f"{CHROMA_HOST}/api/v2/heartbeat", timeout=HEALTH_CHECK_TIMEOUT)
+        # Check if we can connect to the API
+        resp = requests.get(f"http://{CHROMA_HOST.split(':')[0]}:8000/api/v1/heartbeat", timeout=HEALTH_CHECK_TIMEOUT)
         return {'running': resp.status_code == 200}
     except Exception:
         return {'running': False}
+    

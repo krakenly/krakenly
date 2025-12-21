@@ -5,11 +5,10 @@ for optimal search accuracy.
 """
 import json
 import re
-from typing import List, Dict, Any, Optional, Tuple, Union
 from config import DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP, MAX_JSON_CHUNK_SIZE
 
 
-def chunk_text(text: str, chunk_size: Optional[int] = None, overlap: Optional[int] = None, document_context: Optional[str] = None) -> List[str]:
+def chunk_text(text, chunk_size=None, overlap=None, document_context=None):
     """
     Split text into overlapping chunks for indexing.
     
@@ -33,7 +32,7 @@ def chunk_text(text: str, chunk_size: Optional[int] = None, overlap: Optional[in
             return [f"[{document_context}]\n{text}"]
         return [text]
     
-    chunks: List[str] = []
+    chunks = []
     start = 0
     
     while start < len(text):
@@ -56,7 +55,7 @@ def chunk_text(text: str, chunk_size: Optional[int] = None, overlap: Optional[in
     return chunks
 
 
-def preprocess_document(content: str, filename: str) -> Tuple[List[str], Dict[str, Any]]:
+def preprocess_document(content, filename):
     """
     Comprehensive document preprocessing for optimal search.
     
@@ -70,8 +69,8 @@ def preprocess_document(content: str, filename: str) -> Tuple[List[str], Dict[st
     Returns:
         tuple: (chunks, metadata) where chunks is list of preprocessed text chunks
     """
-    chunks: List[str] = []
-    metadata: Dict[str, Any] = {
+    chunks = []
+    metadata = {
         'filename': filename,
         'preprocessing': 'enhanced'
     }
@@ -98,7 +97,7 @@ def preprocess_document(content: str, filename: str) -> Tuple[List[str], Dict[st
     return chunks, metadata
 
 
-def preprocess_text_document(content: str, filename: str) -> List[str]:
+def preprocess_text_document(content, filename):
     """
     Preprocess a text document with enhanced chunking.
     
@@ -109,7 +108,7 @@ def preprocess_text_document(content: str, filename: str) -> List[str]:
     Returns:
         List of preprocessed chunks
     """
-    chunks: List[str] = []
+    chunks = []
     
     # 1. Generate document summary as first chunk
     doc_summary = generate_text_summary(content, filename)
@@ -136,7 +135,7 @@ def preprocess_text_document(content: str, filename: str) -> List[str]:
     return chunks
 
 
-def generate_text_summary(content: str, filename: str) -> str:
+def generate_text_summary(content, filename):
     """
     Generate a summary chunk for a text document.
     
@@ -164,7 +163,7 @@ Preview: {preview}{'...' if len(preview) >= 300 else ''}
     return summary
 
 
-def extract_text_sections(content: str) -> List[Tuple[str, str]]:
+def extract_text_sections(content):
     """
     Extract sections from text based on headers.
     
@@ -177,14 +176,14 @@ def extract_text_sections(content: str) -> List[Tuple[str, str]]:
     Returns:
         List of (section_title, section_content) tuples
     """
-    sections: List[Tuple[str, str]] = []
+    sections = []
     
     # Try Markdown headers
     md_pattern = r'^(#{1,3})\s+(.+)$'
     lines = content.split('\n')
     
-    current_section: Optional[str] = None
-    current_content: List[str] = []
+    current_section = None
+    current_content = []
     
     for line in lines:
         md_match = re.match(md_pattern, line)
@@ -212,7 +211,7 @@ def extract_text_sections(content: str) -> List[Tuple[str, str]]:
     return sections
 
 
-def extract_qa_chunks(content: str, filename: str) -> List[str]:
+def extract_qa_chunks(content, filename):
     """
     Extract Q&A style chunks from content.
     
@@ -227,7 +226,7 @@ def extract_qa_chunks(content: str, filename: str) -> List[str]:
     Returns:
         List of Q&A formatted chunks
     """
-    qa_chunks: List[str] = []
+    qa_chunks = []
     
     # Pattern: "X is a/an/the Y" - definition pattern
     definition_pattern = r'([A-Z][^.]*?)\s+is\s+(a|an|the)\s+([^.]+\.)'
@@ -243,7 +242,7 @@ def extract_qa_chunks(content: str, filename: str) -> List[str]:
     return qa_chunks[:10]  # Limit to avoid too many small chunks
 
 
-def preprocess_json_document(data: Any, filename: str) -> List[str]:
+def preprocess_json_document(data, filename):
     """
     Comprehensive preprocessing for JSON documents.
     
@@ -262,7 +261,7 @@ def preprocess_json_document(data: Any, filename: str) -> List[str]:
     Returns:
         List of preprocessed chunks
     """
-    chunks: List[str] = []
+    chunks = []
     
     # 1. Document Overview
     overview = generate_json_overview(data, filename)
@@ -291,7 +290,7 @@ def preprocess_json_document(data: Any, filename: str) -> List[str]:
     return chunks
 
 
-def generate_json_overview(data: Any, filename: str) -> str:
+def generate_json_overview(data, filename):
     """
     Generate a high-level overview of the JSON document.
     """
@@ -321,7 +320,7 @@ def generate_json_overview(data: Any, filename: str) -> str:
     return '\n'.join(lines)
 
 
-def count_json_items(data: Any, max_depth: int = 10, current_depth: int = 0) -> int:
+def count_json_items(data, max_depth=10, current_depth=0):
     """Recursively count all items in JSON structure."""
     if current_depth > max_depth:
         return 0
@@ -338,13 +337,13 @@ def count_json_items(data: Any, max_depth: int = 10, current_depth: int = 0) -> 
     return count
 
 
-def generate_json_schema_description(data: Any, filename: str) -> str:
+def generate_json_schema_description(data, filename):
     """
     Generate a schema-like description of the JSON structure.
     """
     lines = [f"Schema for {filename}:", ""]
     
-    def describe_structure(obj: Any, indent: int = 0, path: str = "") -> List[str]:
+    def describe_structure(obj, indent=0, path=""):
         result = []
         prefix = "  " * indent
         
@@ -373,7 +372,7 @@ def generate_json_schema_description(data: Any, filename: str) -> str:
     return '\n'.join(lines)
 
 
-def extract_json_entities(data: Any, filename: str, path: str = "", max_chunk_size: Optional[int] = None) -> List[str]:
+def extract_json_entities(data, filename, path="", max_chunk_size=None):
     """
     Extract entities from JSON with full hierarchical context.
     
@@ -383,9 +382,9 @@ def extract_json_entities(data: Any, filename: str, path: str = "", max_chunk_si
     - All properties
     """
     max_chunk_size = max_chunk_size or MAX_JSON_CHUNK_SIZE
-    chunks: List[str] = []
+    chunks = []
     
-    def extract_recursive(obj: Any, current_path: str, parent_context: str = ""):
+    def extract_recursive(obj, current_path, parent_context=""):
         if isinstance(obj, dict):
             # Check if this looks like an entity (has name/id/type)
             is_entity = any(k in obj for k in ['name', 'id', 'type', 'title', 'key'])
@@ -446,14 +445,19 @@ def extract_json_entities(data: Any, filename: str, path: str = "", max_chunk_si
     return chunks
 
 
-def extract_json_relationships(data: Any, filename: str) -> List[str]:
+def extract_json_relationships(data, filename):
     """
     Extract relationships between entities in the JSON.
-    """
-    chunks: List[str] = []
-    relationships: List[str] = []
     
-    def find_relationships(obj: Any, path: str = "", parent_name: Optional[str] = None):
+    Looks for:
+    - Parent-child relationships
+    - References between entities
+    - Groupings and categories
+    """
+    chunks = []
+    relationships = []
+    
+    def find_relationships(obj, path="", parent_name=None):
         if isinstance(obj, dict):
             current_name = obj.get('name') or obj.get('id')
             
@@ -489,14 +493,16 @@ def extract_json_relationships(data: Any, filename: str) -> List[str]:
     return chunks
 
 
-def generate_json_index(data: Any, filename: str) -> List[str]:
+def generate_json_index(data, filename):
     """
     Generate a searchable index of all key-value pairs.
-    """
-    chunks: List[str] = []
-    index_entries: List[str] = []
     
-    def build_index(obj: Any, path: str = ""):
+    Flattens the JSON into path: value pairs for precise searching.
+    """
+    chunks = []
+    index_entries = []
+    
+    def build_index(obj, path=""):
         if isinstance(obj, dict):
             for key, value in obj.items():
                 new_path = f"{path}.{key}" if path else key
@@ -530,16 +536,21 @@ def generate_json_index(data: Any, filename: str) -> List[str]:
     return chunks
 
 
-def generate_json_qa_chunks(data: Any, filename: str) -> List[str]:
+def generate_json_qa_chunks(data, filename):
     """
     Generate Q&A style chunks for common query patterns.
+    
+    Creates chunks optimized for questions like:
+    - "What is X?"
+    - "List all Y"
+    - "What are the properties of Z?"
     """
-    chunks: List[str] = []
+    chunks = []
     
     # Find all named entities
-    entities: List[Dict[str, Any]] = []
+    entities = []
     
-    def collect_entities(obj: Any, path: str = ""):
+    def collect_entities(obj, path=""):
         if isinstance(obj, dict):
             name = obj.get('name') or obj.get('id') or obj.get('title')
             if name:
@@ -565,3 +576,55 @@ def generate_json_qa_chunks(data: Any, filename: str) -> List[str]:
         qa = f"""[{filename}] What is {entity['name']}?
 Answer: {entity['name']} is a {entity['type']} located at {entity['path']}.
 Properties: {', '.join(entity['properties'][:10])}"""
+        chunks.append(qa)
+    
+    # Generate "List all X" chunks for arrays
+    def find_arrays(obj, path=""):
+        arrays = []
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                new_path = f"{path}.{key}" if path else key
+                if isinstance(value, list) and len(value) > 1:
+                    if value and isinstance(value[0], dict):
+                        names = [v.get('name') or v.get('id') or f"item{i}" for i, v in enumerate(value)]
+                        arrays.append((key, names, new_path))
+                    find_arrays(value, new_path)
+                elif isinstance(value, dict):
+                    find_arrays(value, new_path)
+        elif isinstance(obj, list):
+            for item in obj:
+                find_arrays(item, path)
+        return arrays
+    
+    arrays = find_arrays(data)
+    for array_name, items, path in arrays[:20]:
+        qa = f"""[{filename}] What are all the {array_name}?
+List of {array_name} ({len(items)} total):
+{chr(10).join(f'  - {item}' for item in items[:30])}{'...' if len(items) > 30 else ''}
+Path: {path}"""
+        chunks.append(qa)
+    
+    return chunks
+
+
+# Legacy function for backward compatibility
+def chunk_json_document(content, max_chunk_size=None):
+    """
+    Legacy function - now calls preprocess_json_document.
+    
+    Args:
+        content: JSON string content
+        max_chunk_size: Maximum size for each chunk
+        
+    Returns:
+        List of text chunks, or None if JSON parsing fails
+    """
+    try:
+        data = json.loads(content)
+        chunks = preprocess_json_document(data, "document.json")
+        return chunks if chunks else None
+    except json.JSONDecodeError:
+        return None
+    except Exception as e:
+        print(f"Error in JSON chunking: {e}")
+        return None

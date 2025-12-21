@@ -126,3 +126,4 @@ def create_request_logger(app: Any) -> None:
             logger.info(f"RESPONSE [FAST]: {json.dumps(log_data)}")
         
         return response
+    

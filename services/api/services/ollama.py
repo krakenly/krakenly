@@ -267,3 +267,4 @@ def check_health() -> Dict[str, Any]:
         'model_loaded': False,
         'model': MODEL_NAME
     }
+    
