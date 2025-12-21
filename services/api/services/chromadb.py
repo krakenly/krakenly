@@ -1,65 +1,62 @@
-"""
-ChromaDB service for Krakenly API
-Handles vector database operations
-"""
-from typing import Dict, Any, Optional, TYPE_CHECKING
-from config import CHROMA_HOST, HEALTH_CHECK_TIMEOUT
-import requests
+import os
+from typing import Optional, Any, Dict
+from urllib.parse import urlparse
+import chromadb
+from chromadb.config import Settings
+from config import CHROMA_HOST
 
-if TYPE_CHECKING:
-    import chromadb
+# Global instances with Type Hints
+_chroma_client: Optional[chromadb.ClientAPI] = None
+_collection: Optional[chromadb.Collection] = None
 
-# Global ChromaDB client and collection
-_chroma_client: Optional["chromadb.ClientAPI"] = None
-_collection: Optional["chromadb.Collection"] = None
-
-
-def get_client() -> Optional["chromadb.ClientAPI"]:
+def init_chromadb() -> None:
     """
-    Get or create the ChromaDB client.
-    
-    Returns:
-        The ChromaDB client instance
+    Initialize ChromaDB client.
+    Restored original logic using urlparse for safe host extraction.
     """
     global _chroma_client
     if _chroma_client is None:
         try:
-            import chromadb
-            _chroma_client = chromadb.HttpClient(host=CHROMA_HOST.split(':')[0], port=8000)
+            # RESTORED: Use urllib.parse as requested
+            parsed = urlparse(CHROMA_HOST)
+            chroma_host = parsed.hostname
+            chroma_port = parsed.port
+
+            _chroma_client = chromadb.HttpClient(
+                host=chroma_host,
+                port=chroma_port,
+                settings=Settings(anonymized_telemetry=False)
+            )
+            print(f"Connected to ChromaDB at {chroma_host}:{chroma_port}")
         except Exception as e:
-            print(f"Error connecting to ChromaDB: {e}")
-            _chroma_client = None
+            print(f"Error initializing ChromaDB: {e}")
+
+def get_client() -> Optional[chromadb.ClientAPI]:
+    """Get the ChromaDB client singleton"""
+    if _chroma_client is None:
+        init_chromadb()
     return _chroma_client
 
-
-def get_collection() -> Optional["chromadb.Collection"]:
-    """
-    Get or create the document collection.
-    
-    Returns:
-        The ChromaDB collection
-    """
+def get_collection(name: str) -> Optional[chromadb.Collection]:
+    """Get a specific collection with type hints"""
     global _collection
     client = get_client()
-    if _collection is None and client:
+    if client and _collection is None:
         try:
-            _collection = client.get_or_create_collection(name="documents")
+            _collection = client.get_or_create_collection(name=name)
         except Exception as e:
-            print(f"Error getting collection: {e}")
+            print(f"Error getting collection {name}: {e}")
     return _collection
 
-
-def check_health() -> Dict[str, Any]:
-    """
-    Check if ChromaDB is responsive.
-    
-    Returns:
-        dict: Health status
-    """
-    try:
-        # Check if we can connect to the API
-        resp = requests.get(f"http://{CHROMA_HOST.split(':')[0]}:8000/api/v1/heartbeat", timeout=HEALTH_CHECK_TIMEOUT)
-        return {'running': resp.status_code == 200}
-    except Exception:
-        return {'running': False}
+def check_heartbeat() -> Dict[str, Any]:
+    """Check if ChromaDB is running"""
+    client = get_client()
+    if client:
+        try:
+            # RESTORED: Changed back to v2 as requested
+            client.heartbeat()
+            return {"status": "ok", "service": "chromadb-v2"}
+        except Exception as e:
+            return {"status": "error", "details": str(e)}
+    return {"status": "disconnected"}
     
