@@ -69,3 +69,4 @@ def check_health() -> Dict[str, Any]:
         except Exception as e:
             return {'running': False}
     return {'running': False}
+    
