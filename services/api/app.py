@@ -24,11 +24,12 @@ from services.ollama import (
     pull_model,
     list_models,
     check_health as check_ollama_health,
-    generate_with_rag
+    generate_with_rag,
+    generate_with_rag_stream
 )
 from services.chromadb import init_chromadb, get_collection, check_health as check_chromadb_health
 from services.indexing import chunk_text, chunk_json_document, preprocess_document
-from services.search import determine_query_complexity
+from services.search import determine_query_complexity, get_complexity_description
 
 # Import utilities
 from utils.logging import setup_logging, get_logger, create_request_logger
@@ -448,6 +449,133 @@ def search_with_rag() -> Union[Response, Tuple[Response, int]]:
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/search/rag/stream', methods=['POST'])
+def search_with_rag_stream() -> Response:
+    """RAG with streaming response via Server-Sent Events"""
+    
+    # Extract request data BEFORE creating generator (outside generator context)
+    data = request.get_json()
+    activity_id = request.headers.get('X-Activity-ID', str(uuid.uuid4()))
+    
+    def generate(data, activity_id):
+        """Generator for SSE stream"""
+        timings = {}
+        t0 = time.time()
+        
+        # Validate request data
+        if not data or 'query' not in data:
+            yield f'data: {json.dumps({"type": "error", "message": "Missing query", "code": "bad_request"})}\n\n'
+            return
+        
+        query = data['query']
+        
+        # Auto-determine settings
+        auto_top_k, auto_max_tokens = determine_query_complexity(query)
+        top_k = data.get('top_k') or auto_top_k
+        max_tokens = data.get('max_tokens') or auto_max_tokens
+        temperature = data.get('temperature', 0.7)
+        
+        # Get context from ChromaDB
+        context_parts = []
+        sources = []
+        context = ""
+        
+        if top_k > 0:
+            t1 = time.time()
+            query_embedding = encode_texts([query])[0]
+            timings['embedding_ms'] = round((time.time() - t1) * 1000, 2)
+            
+            t2 = time.time()
+            collection = get_collection()
+            results = collection.query(query_embeddings=[query_embedding], n_results=top_k)
+            timings['chromadb_ms'] = round((time.time() - t2) * 1000, 2)
+            
+            if results and results['ids'] and len(results['ids']) > 0:
+                for i in range(len(results['ids'][0])):
+                    context_parts.append(results['documents'][0][i])
+                    if results['metadatas'] and results['metadatas'][0]:
+                        source = results['metadatas'][0][i].get('source', 'Unknown')
+                        if source not in sources:
+                            sources.append(source)
+            
+            context = "\n\n".join(context_parts)
+        else:
+            timings['embedding_ms'] = 0
+            timings['chromadb_ms'] = 0
+        
+        timings['context_chars'] = len(context)
+        
+        # Send start event
+        start_event = {
+            "type": "start",
+            "activity_id": activity_id,
+            "sources": sources,
+            "query_complexity": {
+                "top_k": top_k,
+                "max_tokens": max_tokens,
+                "description": get_complexity_description(top_k, max_tokens)
+            }
+        }
+        yield f'data: {json.dumps(start_event)}\n\n'
+        
+        # Stream tokens from Ollama
+        t3 = time.time()
+        full_response = ""
+        ollama_stats = None
+        
+        try:
+            for chunk in generate_with_rag_stream(query, context, max_tokens, temperature):
+                if isinstance(chunk, dict):
+                    # Final stats returned
+                    ollama_stats = chunk
+                    full_response = chunk.get('full_response', '')
+                else:
+                    # SSE data line - yield it
+                    yield chunk
+                    # Also track full response for done event
+                    try:
+                        event_data = json.loads(chunk.replace('data: ', '').strip())
+                        if event_data.get('type') == 'token':
+                            full_response += event_data.get('content', '')
+                    except:
+                        pass
+                        
+        except Exception as e:
+            yield f'data: {json.dumps({"type": "error", "message": str(e), "code": "stream_error"})}\n\n'
+            return
+        
+        timings['ollama_ms'] = round((time.time() - t3) * 1000, 2)
+        timings['total_ms'] = round((time.time() - t0) * 1000, 2)
+        
+        if ollama_stats:
+            timings['tokens_generated'] = ollama_stats.get('eval_count', 0)
+            eval_duration_sec = ollama_stats.get('eval_duration', 0) / 1e9  # nanoseconds to seconds
+            if eval_duration_sec > 0:
+                timings['tokens_per_sec'] = round(ollama_stats.get('eval_count', 0) / eval_duration_sec, 1)
+        
+        # Send done event
+        done_event = {
+            "type": "done",
+            "full_response": full_response,
+            "timings": timings
+        }
+        yield f'data: {json.dumps(done_event)}\n\n'
+        
+        logger.info(f"STREAM TIMING: {json.dumps(timings)}")
+    
+    # Return streaming response
+    return Response(
+        generate(data, activity_id),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',
+            'X-Activity-ID': activity_id
+        }
+    )
 
 
 @app.route('/list', methods=['GET'])

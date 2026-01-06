@@ -36,6 +36,7 @@ Browser-based interface for managing data and chatting with AI.
 | `/sources/<id>` | DELETE | Delete a source |
 | `/search` | POST | Semantic search |
 | `/search/rag` | POST | RAG-based search with AI response |
+| `/search/rag/stream` | POST | RAG search with streaming response (SSE) |
 | `/generate` | POST | Generate text from prompt |
 | `/stats` | GET | Index statistics |
 | `/models` | GET | List available models |
@@ -271,6 +272,88 @@ Content-Type: application/json
     }
   ],
   "query": "Explain Kubernetes to me"
+}
+```
+
+---
+
+### RAG Search with Streaming
+
+Perform semantic search and stream the AI response in real-time using Server-Sent Events (SSE).
+
+```http
+POST /search/rag/stream
+Content-Type: application/json
+Accept: text/event-stream
+X-Activity-ID: <optional-uuid>
+```
+
+**Request Body:**
+```json
+{
+  "query": "Explain Kubernetes to me",
+  "top_k": 3,
+  "max_tokens": 256
+}
+```
+
+**Parameters:**
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `query` | string | Yes | - | Question to ask |
+| `top_k` | integer | No | auto | Number of context data items |
+| `max_tokens` | integer | No | auto | Maximum response length |
+| `temperature` | float | No | 0.7 | LLM temperature |
+
+**Response:** Server-Sent Events stream
+
+**Event Types:**
+
+1. **Start Event** - Sent when streaming begins
+```
+data: {"type": "start", "activity_id": "uuid", "sources": ["doc1.md"], "query_complexity": {"top_k": 3, "max_tokens": 128, "description": "medium"}}
+```
+
+2. **Token Event** - Sent for each generated token
+```
+data: {"type": "token", "content": "Kubernetes"}
+```
+
+3. **Done Event** - Sent when generation completes
+```
+data: {"type": "done", "full_response": "Kubernetes is...", "timings": {"total_ms": 5230, "tokens_generated": 85, "tokens_per_sec": 16.2}}
+```
+
+4. **Error Event** - Sent on errors
+```
+data: {"type": "error", "message": "Ollama connection failed", "code": "ollama_connection"}
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('/search/rag/stream', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({query: 'What is Docker?'})
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    
+    const text = decoder.decode(value);
+    // Parse SSE events from text
+    for (const line of text.split('\n')) {
+        if (line.startsWith('data: ')) {
+            const event = JSON.parse(line.slice(6));
+            if (event.type === 'token') {
+                console.log(event.content); // Print each token
+            }
+        }
+    }
 }
 ```
 
