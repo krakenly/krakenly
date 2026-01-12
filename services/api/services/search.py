@@ -2,9 +2,9 @@
 Search service for Krakenly API
 Handles semantic search and query complexity analysis
 """
+from typing import Tuple
 
-
-def determine_query_complexity(query):
+def determine_query_complexity(query: str) -> Tuple[int, int]:
     """
     Auto-determine optimal top_k and max_tokens based on query complexity.
     
@@ -18,16 +18,16 @@ def determine_query_complexity(query):
     Returns:
         tuple: (top_k, max_tokens) - optimal settings for this query
     """
-    query_lower = query.lower().strip()
-    word_count = len(query.split())
-    char_count = len(query)
+    query_lower: str = query.lower().strip()
+    word_count: int = len(query.split())
+    char_count: int = len(query)
     
     # Trivial queries - greetings, single words, etc. (no context needed)
     trivial_patterns = [
         'hello', 'hi', 'hey', 'thanks', 'thank you', 'bye', 'goodbye', 
         'ok', 'okay', 'yes', 'no', 'help', 'test'
     ]
-    is_trivial = query_lower in trivial_patterns or (word_count == 1 and char_count < 10)
+    is_trivial: bool = query_lower in trivial_patterns or (word_count == 1 and char_count < 10)
     
     if is_trivial:
         # Trivial query: minimal response, skip context retrieval
@@ -45,8 +45,8 @@ def determine_query_complexity(query):
     ]
     
     # Check for comprehensive query patterns
-    is_comprehensive = any(kw in query_lower for kw in comprehensive_keywords)
-    is_simple = any(kw in query_lower for kw in simple_keywords) and word_count < 8
+    is_comprehensive: bool = any(kw in query_lower for kw in comprehensive_keywords)
+    is_simple: bool = any(kw in query_lower for kw in simple_keywords) and word_count < 8
     
     # Determine complexity level (optimized for CPU inference ~10 tok/s)
     # Using fewer chunks (max 3) to keep context under 3000 chars
@@ -61,7 +61,7 @@ def determine_query_complexity(query):
         return (3, 96)
 
 
-def get_complexity_description(top_k, max_tokens):
+def get_complexity_description(top_k: int, max_tokens: int) -> str:
     """
     Get a human-readable description of the complexity settings.
     
@@ -80,3 +80,4 @@ def get_complexity_description(top_k, max_tokens):
         return "medium"
     else:
         return "complex"
+    
